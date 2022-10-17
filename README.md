@@ -4,7 +4,7 @@ A repository to setup a very basic environment of ROS2
 
 ## Requirements 
 - docker 
-- docker-compose
+- docker-compose (https://docs.docker.com/compose/install/)
 ## How to use 
 
 1. Clone this repository
@@ -18,7 +18,7 @@ docker-compose build # This command automatically builds an image if there's no 
 
 trying realsense
 '''
-docker-compose realsense
+docker-compose up realsense
 
 
 
