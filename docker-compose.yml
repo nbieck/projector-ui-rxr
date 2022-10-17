@@ -1,0 +1,42 @@
+version: "2.3"
+services: 
+  build_image:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: aisl/ros2:dashing
+    volumes:
+      - ./workspace/:/src
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/video0:/dev/video0
+
+  # talker:
+  #   container_name: talker
+  #   image: aisl/ros2:dashing
+  #   command: ros2 run demo_nodes_cpp talker
+
+  # listener:
+  #   container_name: listener
+  #   image: aisl/ros2:dashing
+  #   command: ros2 run demo_nodes_cpp listener
+
+  realsense:
+    container_name: realsense
+    image: aisl/ros2:dashing
+    command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
+
+  # realsense:
+  #   container_name: realsense
+  #   image: aisl/ros2:dashing
+  #   command: ros2 run --gpus all -it --rm \
+  #   --privileged \
+  #   --user=$(id -u $USER):$(id -g $USER) \
+  #   --env="DISPLAY" \
+  #   --workdir="/home/$USER" \
+  #   --volume="/home/$USER:/home/$USER" \
+  #   --volume="/etc/group:/etc/group:ro" \
+  #   --volume="/etc/passwd:/etc/passwd:ro" \
+  #   --volume="/etc/shadow:/etc/shadow:ro" \
+  #   --volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
+  #   --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  #   -e DISPLAY=$DISPLAY --name glvnd cuda_gui
