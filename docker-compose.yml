@@ -54,6 +54,9 @@ services:
     container_name: realsense
     image: aisl/ros2:dashing
     command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
+    volumes:
+      - ./workspace/:/workspace/
+      - /tmp/.X11-unix:/tmp/.X11-unix
 
   # cpp_test:
   #   container_name: cpp_test
