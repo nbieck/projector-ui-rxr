@@ -53,7 +53,7 @@ RUN apt install -y ros-$ROS_DISTRO-desktop \
                 python3-rosdep \
                 python3-argcomplete \
     && rm -rf /var/lib/apt/lists/*rm 
-
+    
 # Initialize rosdep
 RUN rosdep init && rosdep update
 
@@ -61,7 +61,14 @@ RUN sudo apt-get install -y ros-dashing-cv-bridge ros-dashing-librealsense2 ros-
 RUN sudo apt-get install -y libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev
 RUN sudo apt-get install -y libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
 RUN sudo apt-get install -y ros-dashing-realsense-camera-msgs ros-dashing-realsense-ros2-camera
+RUN apt install ros-eloquent-image-tools -y
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    nano \
+    vim \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Setup scripts
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /root/.bashrc
@@ -69,6 +76,7 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /root/.bashrc
 # Set the entry point
 COPY ./docker/ros_entrypoint.sh /
 RUN chmod +x /ros_entrypoint.sh
+
 
 COPY ./workspace/ /
 

@@ -6,15 +6,45 @@ services:
       dockerfile: ./docker/Dockerfile
     image: aisl/ros2:dashing
     volumes:
-      - ./workspace/:/src
+      - ./workspace/:/workspace/
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - /dev/video0:/dev/video0
 
   # talker:
   #   container_name: talker
   #   image: aisl/ros2:dashing
   #   command: ros2 run demo_nodes_cpp talker
+  
+  # imgpublish:
+  #   container_name: imgpublish
+  #   image: aisl/ros2:dashing
+  #   command: ros2 run image_tools cam2image --ros-args -p device_id:=0 -p reliability:=best_effort -p width:=640 -p height:=480 -p frequency:=30.0
+  #   volumes:
+  #     - ./workspace/:/src
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #     - /dev/video0:/dev/video0
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #   tty: true
+  #   privileged: true
 
+  # pycam:
+  #   container_name: pycam
+  #   image: aisl/ros2:dashing
+  #   command: bash -c "cd /root/workspace/src/imgtest/src && python3 test.py"
+  #   volumes:
+  #     - ./workspace:/root/workspace
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #   devices:
+  #     - /dev/video0:/dev/video0:mwr
+  #   tty: true
+  #   privileged: true
+
+  # imgsubscribe:
+  #   container_name: imgsubscribe
+  #   image: aisl/ros2:dashing
+  #   command: ros2 run image_tools showimage --ros-args -p reliability:=best_effort
   # listener:
   #   container_name: listener
   #   image: aisl/ros2:dashing
@@ -25,18 +55,7 @@ services:
     image: aisl/ros2:dashing
     command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
 
-  # realsense:
-  #   container_name: realsense
+  # cpp_test:
+  #   container_name: cpp_test
   #   image: aisl/ros2:dashing
-  #   command: ros2 run --gpus all -it --rm \
-  #   --privileged \
-  #   --user=$(id -u $USER):$(id -g $USER) \
-  #   --env="DISPLAY" \
-  #   --workdir="/home/$USER" \
-  #   --volume="/home/$USER:/home/$USER" \
-  #   --volume="/etc/group:/etc/group:ro" \
-  #   --volume="/etc/passwd:/etc/passwd:ro" \
-  #   --volume="/etc/shadow:/etc/shadow:ro" \
-  #   --volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
-  #   --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-  #   -e DISPLAY=$DISPLAY --name glvnd cuda_gui
+  #   command: rosrun opencv_test main

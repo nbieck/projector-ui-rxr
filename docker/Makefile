@@ -13,13 +13,13 @@ run:
 	docker run -it \
 		--privileged \
 		--net host \
-		--runtime=nvidia \
+		--device /dev/video0=/dev/video0 \
 		-e DISPLAY=$$DISPLAY \
 		-e QT_X11_NO_MITSHM=1 \
 		-v $$HOME/.Xauthority:/root/.Xauthority \
 		-v /tmp/.X11-unix:/tmp/.X11-unix:rw \
 		-v $$PWD/../workspace/:/root/workspace/ \
-		--name $(CONTAINER_NAME) \
+		--name ${CONTAINER_NAME} \
 		$(NAME):$(VERSION)
 	
 contener=`docker ps -a -q`
