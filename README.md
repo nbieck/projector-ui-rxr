@@ -17,9 +17,9 @@ docker-compose build # This command automatically builds an image if there's no 
 ```
 
 trying realsense
-'''
+```
 docker-compose up realsense
-
+```
 
 
 ## TODO
