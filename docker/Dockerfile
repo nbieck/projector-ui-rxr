@@ -33,11 +33,6 @@ RUN python3 -m pip install scikit-build numpy
 RUN python3 -m pip install --upgrade pip setuptools
 RUN python3 -m pip install opencv-python
 
-# Setup of the locale
-RUN locale-gen ja_JP ja_JP.UTF-8 \
-    && update-locale LC_ALL=ja_JP.UTF-8 LANG=ja_JP.UTF-8 \
-    && export LANG=ja_JP.UTF-8
-
 # Add key
 RUN curl http://repo.ros2.org/repos.key | apt-key add -
 RUN sh -c 'echo "deb [arch=amd64,arm64] http:packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list' \

@@ -1,0 +1,16 @@
+[100%] Built target sample_package
+[100%] Built target sample_package
+[36mInstall the project...[0m
+-- Install configuration: ""
+-- Up-to-date: /workspace/install/sample/lib/sample/sample_package
+-- Up-to-date: /workspace/install/sample/share/ament_index/resource_index/package_run_dependencies/sample
+-- Up-to-date: /workspace/install/sample/share/ament_index/resource_index/parent_prefix_path/sample
+-- Up-to-date: /workspace/install/sample/share/sample/environment/ament_prefix_path.sh
+-- Up-to-date: /workspace/install/sample/share/sample/environment/path.sh
+-- Up-to-date: /workspace/install/sample/share/sample/local_setup.bash
+-- Up-to-date: /workspace/install/sample/share/sample/local_setup.sh
+-- Up-to-date: /workspace/install/sample/share/sample/local_setup.zsh
+-- Up-to-date: /workspace/install/sample/share/ament_index/resource_index/packages/sample
+-- Up-to-date: /workspace/install/sample/share/sample/cmake/sampleConfig.cmake
+-- Up-to-date: /workspace/install/sample/share/sample/cmake/sampleConfig-version.cmake
+-- Up-to-date: /workspace/install/sample/share/sample/package.xml

@@ -1,0 +1,17 @@
+[100%] Built target usb_cam
+[100%] Built target usb_cam
+[36mInstall the project...[0m
+-- Install configuration: ""
+-- Up-to-date: /workspace/install/usb_cam/lib/libusb_cam.so
+-- Up-to-date: /workspace/install/usb_cam/share/ament_index/resource_index/package_run_dependencies/usb_cam
+-- Up-to-date: /workspace/install/usb_cam/share/ament_index/resource_index/parent_prefix_path/usb_cam
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/environment/ament_prefix_path.sh
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/environment/path.sh
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/local_setup.bash
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/local_setup.sh
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/local_setup.zsh
+-- Up-to-date: /workspace/install/usb_cam/share/ament_index/resource_index/packages/usb_cam
+-- Up-to-date: /workspace/install/usb_cam/share/ament_index/resource_index/rclcpp_components/usb_cam
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/cmake/usb_camConfig.cmake
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/cmake/usb_camConfig-version.cmake
+-- Up-to-date: /workspace/install/usb_cam/share/usb_cam/package.xml

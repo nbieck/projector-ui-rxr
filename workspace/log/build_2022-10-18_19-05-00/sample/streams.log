@@ -1,0 +1,67 @@
+[0.035s] Invoking command in '/workspace/build/sample': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake /workspace/src/sample -DCMAKE_INSTALL_PREFIX=/workspace/install/sample
+[0.207s] -- The C compiler identification is GNU 7.5.0
+[0.306s] -- The CXX compiler identification is GNU 7.5.0
+[0.315s] -- Check for working C compiler: /usr/bin/cc
+[0.465s] -- Check for working C compiler: /usr/bin/cc -- works
+[0.467s] -- Detecting C compiler ABI info
+[0.609s] -- Detecting C compiler ABI info - done
+[0.621s] -- Detecting C compile features
+[1.135s] -- Detecting C compile features - done
+[1.144s] -- Check for working CXX compiler: /usr/bin/c++
+[1.309s] -- Check for working CXX compiler: /usr/bin/c++ -- works
+[1.312s] -- Detecting CXX compiler ABI info
+[1.476s] -- Detecting CXX compiler ABI info - done
+[1.487s] -- Detecting CXX compile features
+[2.789s] -- Detecting CXX compile features - done
+[2.796s] -- Found ament_cmake: 0.7.6 (/opt/ros/dashing/share/ament_cmake/cmake)
+[2.838s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.6.9", minimum required is "3") 
+[2.838s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[3.145s] -- Found rclcpp: 0.7.16 (/opt/ros/dashing/share/rclcpp/cmake)
+[3.175s] -- Found rosidl_adapter: 0.7.10 (/opt/ros/dashing/share/rosidl_adapter/cmake)
+[3.233s] -- Found rmw_implementation_cmake: 0.7.2 (/opt/ros/dashing/share/rmw_implementation_cmake/cmake)
+[3.234s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[3.237s] -- Looking for pthread.h
+[3.389s] -- Looking for pthread.h - found
+[3.395s] -- Looking for pthread_create
+[3.551s] -- Looking for pthread_create - not found
+[3.551s] -- Looking for pthread_create in pthreads
+[3.667s] -- Looking for pthread_create in pthreads - not found
+[3.667s] -- Looking for pthread_create in pthread
+[3.817s] -- Looking for pthread_create in pthread - found
+[3.820s] -- Found Threads: TRUE  
+[3.871s] -- Found ament_lint_auto: 0.7.12 (/opt/ros/dashing/share/ament_lint_auto/cmake)
+[4.047s] -- Added test 'copyright' to check for copyright in CMake / C / C++ / Python code
+[4.056s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[4.056s] -- Configured cppcheck include dirs: 
+[4.064s] -- Added test 'cpplint' to check C / C++ code against the Google style
+[4.067s] -- Added test 'lint_cmake' to check CMake code style
+[4.077s] -- Added test 'uncrustify' to check C / C++ code style
+[4.079s] -- Added test 'xmllint' to check XML markup files
+[4.093s] -- Configuring done
+[4.139s] -- Generating done
+[4.151s] -- Build files have been written to: /workspace/build/sample
+[4.158s] Invoked command in '/workspace/build/sample' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake /workspace/src/sample -DCMAKE_INSTALL_PREFIX=/workspace/install/sample
+[4.165s] Invoking command in '/workspace/build/sample': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample -- -j8 -l8
+[4.233s] [35m[1mScanning dependencies of target sample_package[0m
+[4.652s] [ 50%] [32mBuilding CXX object CMakeFiles/sample_package.dir/src/sample.cpp.o[0m
+[7.804s] [100%] [32m[1mLinking CXX executable sample_package[0m
+[8.421s] [100%] Built target sample_package
+[8.476s] Invoked command in '/workspace/build/sample' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample -- -j8 -l8
+[8.685s] Invoking command in '/workspace/build/sample': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample --target install -- -j8 -l8
+[8.838s] [100%] Built target sample_package
+[8.881s] [36mInstall the project...[0m
+[8.898s] -- Install configuration: ""
+[8.899s] -- Installing: /workspace/install/sample/lib/sample/sample_package
+[8.904s] -- Set runtime path of "/workspace/install/sample/lib/sample/sample_package" to ""
+[8.908s] -- Installing: /workspace/install/sample/share/ament_index/resource_index/package_run_dependencies/sample
+[8.913s] -- Installing: /workspace/install/sample/share/ament_index/resource_index/parent_prefix_path/sample
+[8.918s] -- Installing: /workspace/install/sample/share/sample/environment/ament_prefix_path.sh
+[8.920s] -- Installing: /workspace/install/sample/share/sample/environment/path.sh
+[8.924s] -- Installing: /workspace/install/sample/share/sample/local_setup.bash
+[8.927s] -- Installing: /workspace/install/sample/share/sample/local_setup.sh
+[8.930s] -- Installing: /workspace/install/sample/share/sample/local_setup.zsh
+[8.934s] -- Installing: /workspace/install/sample/share/ament_index/resource_index/packages/sample
+[8.937s] -- Installing: /workspace/install/sample/share/sample/cmake/sampleConfig.cmake
+[8.941s] -- Installing: /workspace/install/sample/share/sample/cmake/sampleConfig-version.cmake
+[8.944s] -- Installing: /workspace/install/sample/share/sample/package.xml
+[8.953s] Invoked command in '/workspace/build/sample' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample --target install -- -j8 -l8

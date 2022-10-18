@@ -1,0 +1,4 @@
+Invoking command in '/workspace/build/usb_cam': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/usb_cam -- -j8 -l8
+Invoked command in '/workspace/build/usb_cam' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/usb_cam -- -j8 -l8
+Invoking command in '/workspace/build/usb_cam': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/usb_cam --target install -- -j8 -l8
+Invoked command in '/workspace/build/usb_cam' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/usb_cam --target install -- -j8 -l8

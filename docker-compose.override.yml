@@ -4,19 +4,19 @@ services:
     build: 
       context: .
       dockerfile: ./docker/Dockerfile
-    image: aisl/ros2:dashing
+    image: ros2:dashing
     volumes:
       - ./workspace/:/workspace/
       - /tmp/.X11-unix:/tmp/.X11-unix
 
   # talker:
   #   container_name: talker
-  #   image: aisl/ros2:dashing
+  #   image: ros2:dashing
   #   command: ros2 run demo_nodes_cpp talker
   
   # imgpublish:
   #   container_name: imgpublish
-  #   image: aisl/ros2:dashing
+  #   image: ros2:dashing
   #   command: ros2 run image_tools cam2image --ros-args -p device_id:=0 -p reliability:=best_effort -p width:=640 -p height:=480 -p frequency:=30.0
   #   volumes:
   #     - ./workspace/:/src
@@ -29,7 +29,7 @@ services:
 
   # pycam:
   #   container_name: pycam
-  #   image: aisl/ros2:dashing
+  #   image: ros2:dashing
   #   command: bash -c "cd /root/workspace/src/imgtest/src && python3 test.py"
   #   volumes:
   #     - ./workspace:/root/workspace
@@ -43,29 +43,30 @@ services:
 
   # imgsubscribe:
   #   container_name: imgsubscribe
-  #   image: aisl/ros2:dashing
+  #   image: ros2:dashing
   #   command: ros2 run image_tools showimage --ros-args -p reliability:=best_effort
   # listener:
   #   container_name: listener
-  #   image: aisl/ros2:dashing
+  #   image: ros2:dashing
   #   command: ros2 run demo_nodes_cpp listener
 
-  realsense:
-    container_name: realsense
-    image: aisl/ros2:dashing
-    command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
-    volumes:
-      - ./workspace/:/workspace/
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    devices:
-    # set your USB port here
-    # your usb device forwarding to the docker image 
-    # linux 
-    - /dev/ttyUSB0:/dev/ttyUSB0
+  # realsense:
+  #   container_name: realsense
+  #   image: ros2:dashing
+  #   command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
+  #   volumes:
+  #     - ./workspace/:/workspace/
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #   devices:
+  #   # set your USB port here
+  #   # your usb device forwarding to the docker image 
+  #   # linux 
+  #   # - /dev/ttyUSB0:/dev/ttyUSB0
+  #   tty: true
     # mac
     #  - /dev/:/dev/
     # - /dev/ttyUSB0:/dev/ttyUSB0
   # cpp_test:
   #   container_name: cpp_test
-  #   image: aisl/ros2:dashing
+  #   image: ros2:dashing
   #   command: rosrun opencv_test main

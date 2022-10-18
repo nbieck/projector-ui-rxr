@@ -1,0 +1,4 @@
+Invoking command in '/workspace/build/sample': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample -- -j8 -l8
+Invoked command in '/workspace/build/sample' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample -- -j8 -l8
+Invoking command in '/workspace/build/sample': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample --target install -- -j8 -l8
+Invoked command in '/workspace/build/sample' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/sample --target install -- -j8 -l8
