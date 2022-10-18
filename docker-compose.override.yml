@@ -50,14 +50,21 @@ services:
   #   image: aisl/ros2:dashing
   #   command: ros2 run demo_nodes_cpp listener
 
-  # realsense:
-  #   container_name: realsense
-  #   image: aisl/ros2:dashing
-  #   command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
-  #   volumes:
-  #     - ./workspace/:/workspace/
-  #     - /tmp/.X11-unix:/tmp/.X11-unix
-
+  realsense:
+    container_name: realsense
+    image: aisl/ros2:dashing
+    command: ros2 launch realsense_ros2_camera ros2_intel_realsense.launch.py
+    volumes:
+      - ./workspace/:/workspace/
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+    # set your USB port here
+    # your usb device forwarding to the docker image 
+    # linux 
+    - /dev/ttyUSB0:/dev/ttyUSB0
+    # mac
+    #  - /dev/:/dev/
+    # - /dev/ttyUSB0:/dev/ttyUSB0
   # cpp_test:
   #   container_name: cpp_test
   #   image: aisl/ros2:dashing

@@ -9,7 +9,7 @@ A repository to setup a very basic environment of ROS2
 
 1. Clone this repository
 ```
-git clone https://github.com/ActiveIntelligentSystemsLab/ros2-docker
+git clone git@github.com:nbieck/projector-ui-rxr.git
 ```
 1. Run an example `docker-compose`, which runs a talker and a listener program on separated containers
 ```
