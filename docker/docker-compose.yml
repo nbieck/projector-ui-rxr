@@ -1,13 +1,11 @@
 version: "2.3"
 services: 
   build_image:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile
+    build: ./
     image: ros2:dashing
-    volumes:
-      - ./workspace/:/workspace/
-      - /tmp/.X11-unix:/tmp/.X11-unix
+   # volumes:
+    #  - ./workspace/:/workspace/
+     # - /tmp/.X11-unix:/tmp/.X11-unix
 
   colcon:
     image: ros2:dashing
@@ -44,10 +42,10 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
     tty: true
   
-  # talker:
-  #   container_name: talker
-  #   image: ros2:dashing
-  #   command: ros2 run demo_nodes_cpp talker
+  talker:
+    container_name: talker
+    image: ros2:dashing
+    command: ros2 run demo_nodes_cpp talker
   
   # imgpublish:
   #   container_name: imgpublish

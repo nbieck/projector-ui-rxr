@@ -1,12 +1,10 @@
 version: "2.3"
 services: 
   build_image:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile
+    build: ./
     image: ros2:dashing
     volumes:
-      - ./workspace/:/workspace/
+      - ../workspace/:/workspace/
       - /tmp/.X11-unix:/tmp/.X11-unix
 
   # talker:
