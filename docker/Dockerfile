@@ -77,5 +77,5 @@ RUN ls
 
 COPY ./workspace/ /
 
-#ENTRYPOINT ["/ros_entrypoint.sh"]
-#CMD ["bash"]
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]
