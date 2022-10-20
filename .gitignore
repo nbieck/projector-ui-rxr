@@ -31,6 +31,6 @@
 *.out
 *.app
 
-./workspace/build/
-./workspace/install/
-./workspace/log/
+workspace/build/
+workspace/install/
+workspace/log/
