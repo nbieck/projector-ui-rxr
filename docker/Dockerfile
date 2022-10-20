@@ -71,9 +71,11 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /root/.bashrc
 # Set the entry point
 COPY ./docker/ros_entrypoint.sh /
 RUN chmod +x /ros_entrypoint.sh
+RUN sed -i -e 's/\r$//' /ros_entrypoint.sh
 
+RUN ls
 
 COPY ./workspace/ /
 
-ENTRYPOINT ["/ros_entrypoint.sh"]
-CMD ["bash"]
+#ENTRYPOINT ["/ros_entrypoint.sh"]
+#CMD ["bash"]
