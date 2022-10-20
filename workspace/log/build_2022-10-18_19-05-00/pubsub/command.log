@@ -1,6 +1,0 @@
-Invoking command in '/workspace/build/pubsub': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake /workspace/src/pubsub -DCMAKE_INSTALL_PREFIX=/workspace/install/pubsub
-Invoked command in '/workspace/build/pubsub' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake /workspace/src/pubsub -DCMAKE_INSTALL_PREFIX=/workspace/install/pubsub
-Invoking command in '/workspace/build/pubsub': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/pubsub -- -j8 -l8
-Invoked command in '/workspace/build/pubsub' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/pubsub -- -j8 -l8
-Invoking command in '/workspace/build/pubsub': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/pubsub --target install -- -j8 -l8
-Invoked command in '/workspace/build/pubsub' returned '0': CMAKE_PREFIX_PATH=/opt/ros/dashing /usr/bin/cmake --build /workspace/build/pubsub --target install -- -j8 -l8
