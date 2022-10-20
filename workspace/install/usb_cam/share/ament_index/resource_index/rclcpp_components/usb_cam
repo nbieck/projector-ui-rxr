@@ -1,2 +1,0 @@
-usb_cam_node::ImagePublisher;lib/libusb_cam.so
-usb_cam_node::ImageSubscriber;lib/libusb_cam.so
