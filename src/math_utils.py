@@ -1,5 +1,7 @@
 import numpy as np
 import numpy.typing as npt
+import enum
+import math
 
 def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.NDArray) -> np.ndarray:
     """Computes a projection matrix to project from the unit square (0-1) to the given corners"""
@@ -36,4 +38,64 @@ def threeD_to_fourD(mat: npt.NDArray) -> np.ndarray:
                               [g, h, 0, i]"""
 
     return np.insert(np.insert(mat, 2, 0, axis=0), 2, 0, axis=1)
+
+class AngleFormat(enum.Enum):
+    DEG = enum.auto()
+    RAD = enum.auto()
+
+def convert_angles(angle: float, input_format: AngleFormat, output_format: AngleFormat) -> float:
+    if input_format == output_format:
+        return angle
+    if input_format == AngleFormat.DEG:
+        return math.radians(angle)
+    return math.degrees(angle)
+
+def normalize_vector(vec: npt.NDArray) -> np.ndarray:
+    if len(vec.shape) != 1:
+        raise ValueError("The Vector to be normalized must be a 1D array.")
+
+    len_sq = np.dot(vec, vec)
+    return vec / math.sqrt(len_sq)
+
+class Frustum:
+    """Represents a frustum in space, with an origin, orientation, field of view and aspect ratio.
+       Allows for easy conversion from points in world space (i.e. the coordinate system in which the 
+       origin and orientation are defined) to view space (origin at 0, view along -z) to screen space
+       (u,v, are bounded in [0,1] + depth)"""
+
+    def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float, fov_format=AngleFormat.DEG: AngleFormat, **, 
+                 hfov=None: float, vfov=None: float) -> None:
+        """
+        Parameters:
+          - position: Position of the frustum tip (i.e. position of camera or projector)
+          - forward, up: Give the orientation of the frustum, the coordinate system is assumed to be right handed, i.e fwd x up = right
+          - aspect_ratio: aspect ratio calculated as width/height
+          - format: whether the angles are provided in degrees or radians. defaults to radians
+          - hfov, vfov: horizontal or vertical fov. One of the two must be provided
+          """
+
+        if hfov is None and vfov is None:
+            raise ValueError("Field of View (either horizontal or vertical) must be provided.")
+        if hfov is not None and vfov is not None:
+            raise ValueError("Only one Field of Vue must be provided.")
+        __verify_3d_or_die(position)
+        __verify_3d_or_die(forward)
+        __verify_3d_or_die(up)
+
+        self.__pos = position
+        self.__fwd = normalize_vector(forward)
+        self.__up = normalize_vector(up)
+        self.__right = np.cross(self.__fwd, self.__up)
+        self.__ar = aspect_ratio
+        if hfov is not None:
+            self.__hfov = convert_angles(hfov, fov_format, AngleFormat.RAD)
+        else:
+            vfov_rad = convert_angles(vfov, fov_format, AngleFormat.RAD)
+            half_height = math.sin(vfov_rad / 2)
+            half_width = aspect_ratio * half_height
+            self.__hfov = math.asin(half_width) * 2
+
+    def __verify_3d_or_die(vec: npt.NDArray) -> None:
+        if vec.size != (3,):
+            raise ValueError("Vector should be a 1D array with 3 values.")
 
