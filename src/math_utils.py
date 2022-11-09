@@ -26,3 +26,14 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
     matrix = mat_factors.reshape((3, 3))
 
     return matrix
+
+def threeD_to_fourD(mat: npt.NDArray) -> np.ndarray:
+    """Reshape a 3D matrix to a 4D one by inserting a row and column of zeroes.
+
+    i.e.:    [a, b, c]        [a, b, 0, c]
+             [d, e, f]   ->   [d, e, 0, f]
+             [g, h, i]        [0, 0, 0, 0]
+                              [g, h, 0, i]"""
+
+    return np.insert(np.insert(mat, 2, 0, axis=0), 2, 0, axis=1)
+
