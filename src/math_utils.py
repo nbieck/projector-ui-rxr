@@ -61,7 +61,7 @@ class Frustum:
     """Represents a frustum in space, with an origin, orientation, field of view and aspect ratio.
        Allows for easy conversion from points in world space (i.e. the coordinate system in which the 
        origin and orientation are defined) to view space (origin at 0, view along -z) to screen space
-       (u,v, are bounded in [0,1] + depth)"""
+       (u,v, are bounded in [0,1] + depth, if the point is located within the frustum)"""
 
     def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float, fov_format=AngleFormat.DEG: AngleFormat, **, 
                  hfov=None: float, vfov=None: float) -> None:
@@ -69,6 +69,7 @@ class Frustum:
         Parameters:
           - position: Position of the frustum tip (i.e. position of camera or projector)
           - forward, up: Give the orientation of the frustum, the coordinate system is assumed to be right handed, i.e fwd x up = right
+                         These vectors must be orthogonal
           - aspect_ratio: aspect ratio calculated as width/height
           - format: whether the angles are provided in degrees or radians. defaults to radians
           - hfov, vfov: horizontal or vertical fov. One of the two must be provided
@@ -78,9 +79,11 @@ class Frustum:
             raise ValueError("Field of View (either horizontal or vertical) must be provided.")
         if hfov is not None and vfov is not None:
             raise ValueError("Only one Field of Vue must be provided.")
-        __verify_3d_or_die(position)
-        __verify_3d_or_die(forward)
-        __verify_3d_or_die(up)
+        self.__verify_3d_or_die(position)
+        self.__verify_3d_or_die(forward)
+        self.__verify_3d_or_die(up)
+        if np.dot(forward,up) > sys.float_info.epsilon:
+            raise ValueError("Forward and Up must be orthogonal.")
 
         self.__pos = position
         self.__fwd = normalize_vector(forward)
@@ -95,7 +98,78 @@ class Frustum:
             half_width = aspect_ratio * half_height
             self.__hfov = math.asin(half_width) * 2
 
-    def __verify_3d_or_die(vec: npt.NDArray) -> None:
+        self.__rot_mat = np.array([self.__right, self.__up, -self.__fwd]).transpose()
+        self.__inv_rot_mat = np.linalg.inv(self.__rot_mat)
+
+    def get_position(self) -> np.ndarray:
+        return self.__pos
+
+    def get_forward(self) -> np.ndarray:
+        return self.__fwd
+
+    def get_up(self) -> np.ndarray:
+        return self.__up
+
+    def get_right(self) -> np.ndarray:
+        return self.__right
+
+    def get_aspect_ratio(self) -> float:
+        return self.__ar
+
+    def get_horizontal_fov(self) -> float:
+        return self.__hfov
+
+    def world_to_view(self, vec: npt.NDArray) -> np.ndarray:
+        """ Transform a point from world space to the frustum's view space """
+        self.__verify_3d_or_die(vec)
+
+        return np.matmul(self.__rot_mat,(mat_vec - self.__pos))
+
+    def view_to_world(self, vec: npt.NDArray) -> np.ndarray:
+        """ Transform from view space back to world space """
+        self.__verify_3d_or_die(vec)
+
+        return np.matmul(self.__inv_rot_mat, vec) + self.__pos
+
+    def screen_to_view(self, vec: npt.NDArray) -> np.ndarray:
+        """ Transform a point in screen coordinates (u,v,depth) to view space """
+        self.__verify_3d_or_die(vec)
+
+        depth = vec[2]
+
+        # bring uv into range [-1,1] for easier handling
+        uv = vec.resize(2)
+        uv *= np.full_like(uv, 2)
+        uv -= np.full_like(uv, -1)
+
+        half_width = math.sin(self.__hfov / 2)
+        half_height = base_half_width / self.__ar
+
+        return np.array([half_width * uv[0], half_height * uv[1], 1]) * depth
+
+    def screen_to_world(self, vec: npt.NDArray) -> np.ndarray:
+        """ Convenience function to convert directly from screen space to world space """
+
+        return self.view_to_world(self.screen_to_view(vec))
+
+    def view_to_screen(self, vec: npt.NDArray) -> np.ndarray:
+        """ Convert from view space to screen space """
+        depth = vec[2]
+        xy = vec.resize(2)
+        xy /= depth
+
+        half_width = math.sin(self.__hfov / 2)
+        half_height = base_half_width / self.__ar
+
+        uv = xy / np.array([half_width, half_height])
+
+        return np.array([uv[0], uv[1], depth])
+
+    def world_to_screen(self, vevc: npt.NDArray) -> np.ndarray:
+        """ Convenience function to go directly from world to screen space """
+        return self.view_to_screen(self.world_to_view(vec))
+        
+    def __verify_3d_or_die(self, vec: npt.NDArray) -> None:
         if vec.size != (3,):
             raise ValueError("Vector should be a 1D array with 3 values.")
 
