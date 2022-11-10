@@ -2,6 +2,7 @@ import numpy as np
 import numpy.typing as npt
 import enum
 import math
+import sys
 
 def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.NDArray) -> np.ndarray:
     """Computes a projection matrix to project from the unit square (0-1) to the given corners"""
@@ -63,8 +64,8 @@ class Frustum:
        origin and orientation are defined) to view space (origin at 0, view along -z) to screen space
        (u,v, are bounded in [0,1] + depth, if the point is located within the frustum)"""
 
-    def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float, fov_format=AngleFormat.DEG: AngleFormat, **, 
-                 hfov=None: float, vfov=None: float) -> None:
+    def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float,
+                fov_format : AngleFormat =AngleFormat.DEG, *, hfov : float = None, vfov : float = None) -> None:
         """
         Parameters:
           - position: Position of the frustum tip (i.e. position of camera or projector)
@@ -123,7 +124,7 @@ class Frustum:
         """ Transform a point from world space to the frustum's view space """
         self.__verify_3d_or_die(vec)
 
-        return np.matmul(self.__rot_mat,(mat_vec - self.__pos))
+        return np.matmul(self.__rot_mat,(vec - self.__pos))
 
     def view_to_world(self, vec: npt.NDArray) -> np.ndarray:
         """ Transform from view space back to world space """
@@ -143,7 +144,7 @@ class Frustum:
         uv -= np.full_like(uv, -1)
 
         half_width = math.sin(self.__hfov / 2)
-        half_height = base_half_width / self.__ar
+        half_height = half_width / self.__ar
 
         return np.array([half_width * uv[0], half_height * uv[1], 1]) * depth
 
@@ -159,13 +160,13 @@ class Frustum:
         xy /= depth
 
         half_width = math.sin(self.__hfov / 2)
-        half_height = base_half_width / self.__ar
+        half_height = half_width / self.__ar
 
         uv = xy / np.array([half_width, half_height])
 
         return np.array([uv[0], uv[1], depth])
 
-    def world_to_screen(self, vevc: npt.NDArray) -> np.ndarray:
+    def world_to_screen(self, vec: npt.NDArray) -> np.ndarray:
         """ Convenience function to go directly from world to screen space """
         return self.view_to_screen(self.world_to_view(vec))
         
