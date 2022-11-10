@@ -65,7 +65,11 @@ class Window:
             glBegin(GL_POLYGON)
             for vt in f:
                 w = np.dot(self.trans_m, vt.T)
+<<<<<<< HEAD
                 glVertex2f(w[0]/w[-1],w[1]/w[-1])
+=======
+                glVertex2f(w[0]/w[2],w[1]/w[2])
+>>>>>>> multiprocessing
             glEnd()
 
     def display(self,window):
