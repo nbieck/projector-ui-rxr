@@ -7,36 +7,46 @@ import glfw
 
 # import file 
 import window
+import math_utils as mu
 
 
 # sending transform matrix to window generator by queue
 def write(q):
 
     while True:
-        trans_m = np.array([[1, 0, 0, 0],
-                            [0, 1, 0, 0],
-                            [0, 0, 1, 0],
-                            [random.random(), 0, 0, 1]])
+        bl = np.array([random.uniform(0,0.5), random.uniform(0,0.5)])
+        br = np.array([random.uniform(0.5,1.0), random.uniform(0,0.5)])
+        tr = np.array([random.uniform(0,0.5), random.uniform(0.5,1.0)])
+        tl = np.array([random.uniform(0.5,1.0), random.uniform(0.5,1.0)])
+        
+        
+        trans_m = mu.threeD_to_fourD(mu.compute_matrix(bl,br,tr,tl))
+        
         print('Process to write: {}'.format(os.getpid()))
         q.put(trans_m)
         time.sleep(random.random())
 
 
 # creating the window based on the matrix received from the write function
+
+buttons = np.array([[[0, 0, 0, 1],
+                     [0, 1, 0, 1],
+                     [1, 1, 0, 1],
+                     [0, 1, 0, 1]]])
+
 def read(q):
-    value = np.array([[1, 0, 0, 0],
+    trans_m = np.array([[1, 0, 0, 0],
                       [0, 1, 0, 0],
                       [0, 0, 1, 0],
                       [0, 0, 0, 1]])
 
-    w = window.Window(window.buttons, window.trans_m)
+    w = window.Window(buttons, trans_m)
     print('Process to read: {}'.format(os.getpid()))
 
     while not glfw.window_should_close(w.window):
         if not q.empty():
-            value = q.get()
-            print(value)
-        w.run(trans_m=value)
+            trans_m = q.get()
+        w.run(trans_m=trans_m)
     w.clear()
 
 # Parent process is creating the queue for child process

@@ -11,14 +11,6 @@ trans_m = np.array([[1, 0, 0, 0],
                     [0, 0, 1, 0],
                     [0, 0, 0, 1]])
 
-buttons = np.array([[[0.1, 0.25, 0, 1],
-                     [0.40, 0.25, 0, 1],
-                     [0.40, 0.75, 0, 1],
-                     [0.1, 0.75, 0, 1]],
-                     [[0.6, 0.25, 0, 1],
-                     [0.90, 0.25, 0, 1],
-                     [0.90, 0.75, 0, 1],
-                     [0.6, 0.75, 0, 1]]])
 class Window:
     def __init__(self, features, trans_m) -> None:
         self.trans_m = trans_m
@@ -54,6 +46,9 @@ class Window:
         self.display(trans_m)
         glfw.poll_events()
     
+    def callibration(self): 
+        pass
+
     def clear(self):
         glfw.terminate()
 
@@ -81,8 +76,8 @@ class Window:
         if x > self.features[0][0][0] and y > self.features[0][0][1] and x < self.features[0][2][0] and y < self.features[0][2][1]:
             print("self.button 1 pressed")
 
-        if x > self.features[1][0][0] and y > self.features[1][0][1] and x < self.features[1][2][0] and y < self.features[1][2][1]:
-            print("self.button 2 pressed")
+        # if x > self.features[1][0][0] and y > self.features[1][0][1] and x < self.features[1][2][0] and y < self.features[1][2][1]:
+        #     print("self.button 2 pressed")
 
 
     def cursor_enter(self, window, entered):
