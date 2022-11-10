@@ -59,6 +59,14 @@ def normalize_vector(vec: npt.NDArray) -> np.ndarray:
     len_sq = np.dot(vec, vec)
     return vec / math.sqrt(len_sq)
 
+def vfov_to_hfov(vfov: float, aspect_ratio: float, in_format: AngleFormat, out_format: AngleFormat) -> float:
+    vfov_rad = convert_angles(vfov, in_format, AngleFormat.RAD)
+    half_height = math.sin(vfov_rad / 2)
+    half_width = aspect_ratio * half_height
+    hfov_rad = math.asin(half_width) * 2
+    return convert_angles(hfov_rad, AngleFormat.RAD, out_format)
+
+
 class Frustum:
     """Represents a frustum in space, with an origin, orientation, field of view and aspect ratio.
        Allows for easy conversion from points in world space (i.e. the coordinate system in which the 
@@ -66,7 +74,7 @@ class Frustum:
        (u,v, are bounded in [0,1] + depth, if the point is located within the frustum)"""
 
     def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float,
-                fov_format : AngleFormat =AngleFormat.DEG, *, hfov : Optional[float] = None, vfov : Optional[float] = None) -> None:
+                fov_format : AngleFormat = AngleFormat.DEG, *, hfov : Optional[float] = None, vfov : Optional[float] = None) -> None:
         """
         Parameters:
           - position: Position of the frustum tip (i.e. position of camera or projector)
@@ -96,10 +104,7 @@ class Frustum:
             self.__hfov = convert_angles(hfov, fov_format, AngleFormat.RAD)
         else:
             assert vfov is not None
-            vfov_rad = convert_angles(vfov, fov_format, AngleFormat.RAD)
-            half_height = math.sin(vfov_rad / 2)
-            half_width = aspect_ratio * half_height
-            self.__hfov = math.asin(half_width) * 2
+            self.__hfov = vfov_to_hfov(vfov, aspect_ratio, fov_format, AngleFormat.RAD)
 
         self.__rot_mat = np.array([self.__right, self.__up, -self.__fwd]).transpose()
         self.__inv_rot_mat = np.linalg.inv(self.__rot_mat)
