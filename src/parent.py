@@ -14,17 +14,21 @@ import math_utils as mu
 def write(q):
 
     while True:
-        bl = np.array([random.uniform(0,0.5), random.uniform(0,0.5)])
-        br = np.array([random.uniform(0.5,1.0), random.uniform(0,0.5)])
-        tr = np.array([random.uniform(0,0.5), random.uniform(0.5,1.0)])
-        tl = np.array([random.uniform(0.5,1.0), random.uniform(0.5,1.0)])
+        # bl = np.array([random.uniform(0,0.5), random.uniform(0,0.5)])
+        # br = np.array([random.uniform(0.5,1.0), random.uniform(0,0.5)])
+        # tl = np.array([random.uniform(0,0.5), random.uniform(0.5,1.0)])
+        # tr = np.array([random.uniform(0.5,1.0), random.uniform(0.5,1.0)])
+        bl = np.array([0.2, 0.2])
+        br = np.array([0.8, 0.2])
+        tl = np.array([0.2, 0.8])
+        tr = np.array([0.8, 0.8])
         
         
         trans_m = mu.threeD_to_fourD(mu.compute_matrix(bl,br,tr,tl))
         
         print('Process to write: {}'.format(os.getpid()))
         q.put(trans_m)
-        time.sleep(random.random())
+        time.sleep(0.5)
 
 
 # creating the window based on the matrix received from the write function
@@ -32,14 +36,14 @@ def write(q):
 buttons = np.array([[[0, 0, 0, 1],
                      [0, 1, 0, 1],
                      [1, 1, 0, 1],
-                     [0, 1, 0, 1]]])
+                     [1, 0, 0, 1]]])
 
 def read(q):
     trans_m = np.array([[1, 0, 0, 0],
                       [0, 1, 0, 0],
                       [0, 0, 1, 0],
                       [0, 0, 0, 1]])
-
+    
     w = window.Window(buttons, trans_m)
     print('Process to read: {}'.format(os.getpid()))
 

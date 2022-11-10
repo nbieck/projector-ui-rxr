@@ -28,6 +28,7 @@ class Window:
         
         self.init()
       
+
     def init(self):
         glfw.set_cursor_pos_callback(self.window, self.cursor_pos)
         glfw.set_cursor_enter_callback(self.window, self.cursor_enter)
@@ -40,12 +41,14 @@ class Window:
         glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0)
         self.display(self.trans_m)   # necessary only on Windows
     
+
     def run(self, trans_m):
-        print("run",trans_m)
+        # print("run",trans_m)
         glfw.wait_events_timeout(1e-3)
         self.display(trans_m)
         glfw.poll_events()
     
+
     def callibration(self): 
         pass
 
@@ -58,17 +61,20 @@ class Window:
 
         for f in tool:
             glBegin(GL_POLYGON)
-            for vt in f:
-                w = np.dot(trans_m, vt.T)
-                glVertex2f(w[0]/w[-1],w[1]/w[-1])
+    
+            p = trans_m @ f.T
+            print(p.T)
+            for vt in p.T:
+                glVertex2f(vt[0],1-vt[1])
+
             glEnd()
+
 
     def display(self,trans_m):
         glClear(GL_COLOR_BUFFER_BIT)
-
         self.draw(self.features, trans_m)
-
         glfw.swap_buffers(self.window)
+
 
     def cursor_pos(self, window, xpos, ypos):
         x = xpos/width
@@ -82,6 +88,7 @@ class Window:
 
     def cursor_enter(self, window, entered):
         print('cursor_enter:', entered)
+
 
     def mouse_button(self, window, button, action, mods):
         pos = glfw.get_cursor_pos(window)
@@ -104,8 +111,10 @@ class Window:
         x, y = pos
         print(pos, x, y)
 
+
     def scroll(self, window, xoffset, yoffset):
         print('scroll:', xoffset, yoffset)
+
 
     def window_refresh(self, window):
         self.display(window)
