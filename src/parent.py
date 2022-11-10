@@ -49,16 +49,17 @@ def read(q):
         w.run(trans_m=trans_m)
     w.clear()
 
-# Parent process is creating the queue for child process
-q = Queue()
-pw = Process(target=write, args=(q,))
-pr = Process(target=read, args=(q,))
-# activating process
-pw.start()
-pr.start()
+if __name__ == "__main__":
+    # Parent process is creating the queue for child process
+    q = Queue()
+    pw = Process(target=write, args=(q,))
+    pr = Process(target=read, args=(q,))
+    # activating process
+    pw.start()
+    pr.start()
 
-# wait until pw ends
-pw.join()
-# pw is infinite loop, so it needs to stop 
-pr.terminate()
+    # wait until pw ends
+    pw.join()
+    # pw is infinite loop, so it needs to stop 
+    pr.terminate()
 
