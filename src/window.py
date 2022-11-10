@@ -44,40 +44,36 @@ class Window:
         # glfw.set_window_refresh_callback(self.window, self.window_refresh)
         glfw.make_context_current(self.window)
 
-        glClearColor(0.0, 1.0, 0.0, 1.0)
+        glClearColor(0.0, 0.0, 0.0, 1.0)
         glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0)
-        self.display(self.window)   # necessary only on Windows
+        self.display(self.trans_m)   # necessary only on Windows
     
-    def run(self):
-
-        while not glfw.window_should_close(self.window):
-            glfw.wait_events_timeout(1e-3)
-            self.display(self.window)
-            glfw.poll_events()
-
+    def run(self, trans_m):
+        print("run",trans_m)
+        glfw.wait_events_timeout(1e-3)
+        self.display(trans_m)
+        glfw.poll_events()
+    
+    def clear(self):
         glfw.terminate()
 
   
-    def draw(self, tool, window):
+    def draw(self, tool, trans_m):
         glColor3f(1.0, 1.0, 1.0)
 
         for f in tool:
             glBegin(GL_POLYGON)
             for vt in f:
-                w = np.dot(self.trans_m, vt.T)
-<<<<<<< HEAD
+                w = np.dot(trans_m, vt.T)
                 glVertex2f(w[0]/w[-1],w[1]/w[-1])
-=======
-                glVertex2f(w[0]/w[2],w[1]/w[2])
->>>>>>> multiprocessing
             glEnd()
 
-    def display(self,window):
+    def display(self,trans_m):
         glClear(GL_COLOR_BUFFER_BIT)
 
-        self.draw(self.features, window)
+        self.draw(self.features, trans_m)
 
-        glfw.swap_buffers(window)
+        glfw.swap_buffers(self.window)
 
     def cursor_pos(self, window, xpos, ypos):
         x = xpos/width
@@ -119,6 +115,3 @@ class Window:
     def window_refresh(self, window):
         self.display(window)
 
-
-windo = Window(features=buttons, trans_m=trans_m)
-windo.run()
