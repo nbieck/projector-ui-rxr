@@ -3,6 +3,7 @@ import numpy.typing as npt
 import enum
 import math
 import sys
+from typing import Optional
 
 def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.NDArray) -> np.ndarray:
     """Computes a projection matrix to project from the unit square (0-1) to the given corners"""
@@ -65,7 +66,7 @@ class Frustum:
        (u,v, are bounded in [0,1] + depth, if the point is located within the frustum)"""
 
     def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float,
-                fov_format : AngleFormat =AngleFormat.DEG, *, hfov : float = None, vfov : float = None) -> None:
+                fov_format : AngleFormat =AngleFormat.DEG, *, hfov : Optional[float] = None, vfov : Optional[float] = None) -> None:
         """
         Parameters:
           - position: Position of the frustum tip (i.e. position of camera or projector)
@@ -94,6 +95,7 @@ class Frustum:
         if hfov is not None:
             self.__hfov = convert_angles(hfov, fov_format, AngleFormat.RAD)
         else:
+            assert vfov is not None
             vfov_rad = convert_angles(vfov, fov_format, AngleFormat.RAD)
             half_height = math.sin(vfov_rad / 2)
             half_width = aspect_ratio * half_height
