@@ -109,9 +109,6 @@ def __define_J(xs: List[npt.NDArray], ts: List[npt.NDARRAY], ar, hfov) -> __Jaco
         sint = sin(theta)
         chfov = cos(hfov/2)
 
-        p1 = p[0]
-        p2 = p[1]
-        p3 = p[2]
         u1 = u[1]
         u2 = u[2]
         u3 = u[3]
@@ -121,15 +118,6 @@ def __define_J(xs: List[npt.NDArray], ts: List[npt.NDARRAY], ar, hfov) -> __Jaco
         t22 = ts[1][1]
         t31 = ts[2][0]
         t32 = ts[2][1]
-        x11 = xs[0][0]
-        x12 = xs[0][1]
-        x13 = xs[0][2]
-        x21 = xs[1][0]
-        x22 = xs[1][1]
-        x23 = xs[1][2]
-        x31 = xs[2][0]
-        x32 = xs[2][1]
-        x33 = xs[2][2]
 
         return np.array(
                 [                                                                                                            0,                                                                                                             0,                                                                                                             0, 0, 0, 0,                                                                              2*u1,                                                                              2*u2,                                                                              2*u3,                                                                                                          0],
