@@ -4,7 +4,9 @@ from typing import List, Optional, Callable
 import math_utils as mu
 from math import cos,sin
 
-def calibrate(world_points: List[npt.NDArray], texture_points: List[npt.NDArray], aspect_ratio: float, fov_format: mu.AngleFormat = mu.AngleFormat.RAD, *,
+NEWTON_ITERATION_COUNT = 10
+
+def calibrate(world_points: List[npt.NDArray], texture_points: List[npt.NDArray], aspect_ratio: float, fov_format: mu.AngleFormat = mu.AngleFormat.DEG, *,
               hfov: Optional[float] = None, vfov: Optional[float] = None) -> mu.Frustum:
     """
         Given 3 points an world space (camera view space) and the corresponsing texture coordinates in 
@@ -48,8 +50,31 @@ def calibrate(world_points: List[npt.NDArray], texture_points: List[npt.NDArray]
 
     # Our 10D function we want to zero
     F = __define_F(world_points, texture_points, aspect_ratio, hfov_rad)
+    J = __define_J(world_points, texture_points, aspect_ratio, hfov_rad)
 
-    raise NotImplementedError("Not fully implemented yet")
+    # initial estimate
+    solution = np.zeros((10,))
+
+    for _ in range(NEWTON_ITERATION_COUNT):
+        diff = np.linalg.solve(J(solution), -F(solution))
+        solution += diff
+
+    u = solution[6:9]
+    theta = solution[9]
+
+    pos = solution[3:6]
+    fwd = -np.array([
+         u[0]*u[2]*(1-cos(theta))+u[2]*sin(theta),
+         u[1]*u[2]*(1-cos(theta))-u[1]*sin(theta),
+         cos(theta)+u[2]^2*(1-cos(theta))
+        ])
+    up = np.array([
+        u[0]*u[1]*(1-cos(theta))-u[2]*sin(theta),
+        cos(theta)+u[1]^2*(1-cos(theta)),
+        u[2]*u[1]*(1-cos(theta))-u[0]*sin(theta)
+        ])
+
+    return mu.Frustum(pos, fwd, up, aspect_ratio, mu.AngleFormat.RAD, hfov=hfov_rad)
 
 __FuncType = Callable[[float,float,float,npt.NDArray,npt.NDArray,float],npt.NDArray]
 
@@ -119,7 +144,7 @@ def __define_J(xs: List[npt.NDArray], ts: List[npt.NDARRAY], ar, hfov) -> __Jaco
         t31 = ts[2][0]
         t32 = ts[2][1]
 
-        return np.array(
+        return np.array([
                 [                                                                                                            0,                                                                                                             0,                                                                                                             0, 0, 0, 0,                                                                              2*u1,                                                                              2*u2,                                                                              2*u3,                                                                                                          0],
                 [u1*u3*(cost - 1) - u2*sint + t11*chfov*((1 - cost)*u1^2 + cost) - (t12*chfov*(u3*sint + u1*u2*(cost - 1)))/ar,                                                                                                             0,                                                                                                             0, 1, 0, 0, f1*u3*(cost - 1) - 2*f1*t11*u1*chfov*(cost - 1) - (f1*t12*u2*chfov*(cost - 1))/ar,                                       - f1*sint - (f1*t12*u1*chfov*(cost - 1))/ar,                                         f1*u1*(cost - 1) - (f1*t12*chfov*sint)/ar, - f1*(u2*cost + u1*u3*sint) - f1*t11*chfov*(- sint*u1^2 + sint) - (f1*t12*chfov*(u3*cost - u1*u2*sint))/ar],
                 [u1*sint + u2*u3*(cost - 1) + t11*chfov*(u3*sint - u1*u2*(cost - 1)) + (t12*chfov*((1 - cost)*u2^2 + cost))/ar,                                                                                                             0,                                                                                                             0, 0, 1, 0,                                              f1*sint - f1*t11*u2*chfov*(cost - 1), f1*u3*(cost - 1) - f1*t11*u1*chfov*(cost - 1) - (2*f1*t12*u2*chfov*(cost - 1))/ar,                                              f1*u2*(cost - 1) + f1*t11*chfov*sint,   f1*(u1*cost - u2*u3*sint) + f1*t11*chfov*(u3*cost + u1*u2*sint) - (f1*t12*chfov*(- sint*u2^2 + sint))/ar],
