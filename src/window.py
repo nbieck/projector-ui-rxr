@@ -14,9 +14,9 @@ trans_m = np.array([[1, 0, 0, 0],
 class Window:
     def __init__(self, features, trans_m) -> None:
         self.trans_m = trans_m
-
         self.features = features
-
+        self.pressed = False
+        self.P = None
         if not glfw.init():
             raise RuntimeError('Could not initialize GLFW3')
 
@@ -30,8 +30,8 @@ class Window:
       
 
     def init(self):
-        glfw.set_cursor_pos_callback(self.window, self.cursor_pos)
-        glfw.set_cursor_enter_callback(self.window, self.cursor_enter)
+        # glfw.set_cursor_pos_callback(self.window, self.cursor_pos)
+        # glfw.set_cursor_enter_callback(self.window, self.cursor_enter)
         glfw.set_mouse_button_callback(self.window, self.mouse_button)
         glfw.set_scroll_callback(self.window, self.scroll)
         # glfw.set_window_refresh_callback(self.window, self.window_refresh)
@@ -63,7 +63,7 @@ class Window:
             glBegin(GL_POLYGON)
     
             p = trans_m @ f.T
-            print(p.T)
+            self.P = p.T
             for vt in p.T:
                 glVertex2f(vt[0],vt[1])
 
@@ -95,6 +95,7 @@ class Window:
         print('mouse:', button, end='')
 
         if button == glfw.MOUSE_BUTTON_LEFT:
+            self.pressed = True
             print('(Left)', end='')
         if button == glfw.MOUSE_BUTTON_RIGHT:
             print('(Right)', end='')
