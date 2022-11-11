@@ -58,33 +58,90 @@ def __define_F(xs: List[npt.NDArray], ts: List[npt.NDArray], ar, hfov) -> __Func
 
     def F(f1: float, f2: float, f3: float, p: npt.NDArray, u: npt.NDArray, theta: float) -> npt.NDArray:
         #helpers
-        sigma1 = cos(theta) - u[2]^2*(cos(theta)-1)
-        sigma2 = cos(theta) - u[1]^2*(cos(theta)-1)
-        sigma3 = cos(theta) - u[0]^2*(cos(theta)-1)
-        sigma10 = (cos(theta) - 1)
-        sigma11 = (cos(theta) - 1)
-        sigma12 = (cos(theta) - 1)
-        sigma4 = u[2]*sin(theta) - sigma10
-        sigma5 = u[1]*sin(theta) - sigma11
-        sigma6 = u[0]*sin(theta) - sigma12
-        sigma7 = u[2]*sin(theta) + sigma10
-        sigma8 = u[1]*sin(theta) + sigma11
-        sigma9 = u[0]*sin(theta) + sigma12
-
+        cost = cos(theta)
+        sint = sin(theta)
         chfov = cos(hfov/2)
 
+        p1 = p[0]
+        p2 = p[1]
+        p3 = p[2]
+        u1 = u[1]
+        u2 = u[2]
+        u3 = u[3]
+        t11 = ts[0][0]
+        t12 = ts[0][1]
+        t21 = ts[1][0]
+        t22 = ts[1][1]
+        t31 = ts[2][0]
+        t32 = ts[2][1]
+        x11 = xs[0][0]
+        x12 = xs[0][1]
+        x13 = xs[0][2]
+        x21 = xs[1][0]
+        x22 = xs[1][1]
+        x23 = xs[1][2]
+        x31 = xs[2][0]
+        x32 = xs[2][1]
+        x33 = xs[2][2]
+
         return np.array([
-            u[0]^2+u[1]^2+u[2]^2-1,
-            p[0] - xs[0][0] + f1 * sigma5 + f1 * ts[0][0] * chfov * sigma3 - f1 * ts[0][1] * chfov * sigma7 / ar,
-            p[1] - xs[0][1] + f1 * sigma9 + f1 * ts[0][0] * chfov * sigma4 - f1 * ts[0][1] * chfov * sigma2 / ar,
-            p[2] - xs[0][2] + f1 * sigma1 + f1 * ts[0][0] * chfov * sigma8 - f1 * ts[0][1] * chfov * sigma6 / ar,
-            p[0] - xs[1][0] + f2 * sigma5 + f2 * ts[1][0] * chfov * sigma3 - f2 * ts[1][1] * chfov * sigma7 / ar,
-            p[1] - xs[1][1] + f2 * sigma9 + f2 * ts[1][0] * chfov * sigma4 - f2 * ts[1][1] * chfov * sigma2 / ar,
-            p[2] - xs[1][2] + f2 * sigma1 + f2 * ts[1][0] * chfov * sigma8 - f2 * ts[1][1] * chfov * sigma6 / ar,
-            p[0] - xs[2][0] + f3 * sigma5 + f3 * ts[2][0] * chfov * sigma3 - f3 * ts[2][1] * chfov * sigma7 / ar,
-            p[1] - xs[2][1] + f3 * sigma9 + f3 * ts[2][0] * chfov * sigma4 - f3 * ts[2][1] * chfov * sigma2 / ar,
-            p[2] - xs[2][2] + f3 * sigma1 + f3 * ts[2][0] * chfov * sigma8 - f3 * ts[2][1] * chfov * sigma6 / ar,
+                u1^2 + u2^2 + u3^2 - 1,
+                p1 - x11 - f1*(u2*sint - u1*u3*(cost - 1)) + f1*t11*chfov*((1 - cost)*u1^2 + cost) - (f1*t12*chfov*(u3*sint + u1*u2*(cost - 1)))/ar,
+                p2 - x12 + f1*(u1*sint + u2*u3*(cost - 1)) + f1*t11*chfov*(u3*sint - u1*u2*(cost - 1)) + (f1*t12*chfov*((1 - cost)*u2^2 + cost))/ar,
+                p3 - x13 - f1*((1 - cost)*u3^2 + cost) - f1*t11*chfov*(u2*sint + u1*u3*(cost - 1)) + (f1*t12*chfov*(u1*sint - u2*u3*(cost - 1)))/ar,
+                p1 - x21 - f2*(u2*sint - u1*u3*(cost - 1)) + f2*t21*chfov*((1 - cost)*u1^2 + cost) - (f2*t22*chfov*(u3*sint + u1*u2*(cost - 1)))/ar,
+                p2 - x22 + f2*(u1*sint + u2*u3*(cost - 1)) + f2*t21*chfov*(u3*sint - u1*u2*(cost - 1)) + (f2*t22*chfov*((1 - cost)*u2^2 + cost))/ar,
+                p3 - x23 - f2*((1 - cost)*u3^2 + cost) - f2*t21*chfov*(u2*sint + u1*u3*(cost - 1)) + (f2*t22*chfov*(u1*sint - u2*u3*(cost - 1)))/ar,
+                p1 - x31 - f3*(u2*sint - u1*u3*(cost - 1)) + f3*t31*chfov*((1 - cost)*u1^2 + cost) - (f3*t32*chfov*(u3*sint + u1*u2*(cost - 1)))/ar,
+                p2 - x32 + f3*(u1*sint + u2*u3*(cost - 1)) + f3*t31*chfov*(u3*sint - u1*u2*(cost - 1)) + (f3*t32*chfov*((1 - cost)*u2^2 + cost))/ar,
+                p3 - x33 - f3*((1 - cost)*u3^2 + cost) - f3*t31*chfov*(u2*sint + u1*u3*(cost - 1)) + (f3*t32*chfov*(u1*sint - u2*u3*(cost - 1)))/ar
             ])
 
     return F
 
+__JacobianType = Callable[[float,float,float,npt.NDArray,npt.NDArray,float],npt.NDArray]
+
+def __define_J(xs: List[npt.NDArray], ts: List[npt.NDARRAY], ar, hfov) -> __JacobianType:
+    def J(f1: float, f2: float, f3: float, p: npt.NDArray, u: npt.NDArray, theta: float) -> npt.NDArray:
+
+        #helpers
+        cost = cos(theta)
+        sint = sin(theta)
+        chfov = cos(hfov/2)
+
+        p1 = p[0]
+        p2 = p[1]
+        p3 = p[2]
+        u1 = u[1]
+        u2 = u[2]
+        u3 = u[3]
+        t11 = ts[0][0]
+        t12 = ts[0][1]
+        t21 = ts[1][0]
+        t22 = ts[1][1]
+        t31 = ts[2][0]
+        t32 = ts[2][1]
+        x11 = xs[0][0]
+        x12 = xs[0][1]
+        x13 = xs[0][2]
+        x21 = xs[1][0]
+        x22 = xs[1][1]
+        x23 = xs[1][2]
+        x31 = xs[2][0]
+        x32 = xs[2][1]
+        x33 = xs[2][2]
+
+        return np.array(
+                [                                                                                                            0,                                                                                                             0,                                                                                                             0, 0, 0, 0,                                                                              2*u1,                                                                              2*u2,                                                                              2*u3,                                                                                                          0],
+                [u1*u3*(cost - 1) - u2*sint + t11*chfov*((1 - cost)*u1^2 + cost) - (t12*chfov*(u3*sint + u1*u2*(cost - 1)))/ar,                                                                                                             0,                                                                                                             0, 1, 0, 0, f1*u3*(cost - 1) - 2*f1*t11*u1*chfov*(cost - 1) - (f1*t12*u2*chfov*(cost - 1))/ar,                                       - f1*sint - (f1*t12*u1*chfov*(cost - 1))/ar,                                         f1*u1*(cost - 1) - (f1*t12*chfov*sint)/ar, - f1*(u2*cost + u1*u3*sint) - f1*t11*chfov*(- sint*u1^2 + sint) - (f1*t12*chfov*(u3*cost - u1*u2*sint))/ar],
+                [u1*sint + u2*u3*(cost - 1) + t11*chfov*(u3*sint - u1*u2*(cost - 1)) + (t12*chfov*((1 - cost)*u2^2 + cost))/ar,                                                                                                             0,                                                                                                             0, 0, 1, 0,                                              f1*sint - f1*t11*u2*chfov*(cost - 1), f1*u3*(cost - 1) - f1*t11*u1*chfov*(cost - 1) - (2*f1*t12*u2*chfov*(cost - 1))/ar,                                              f1*u2*(cost - 1) + f1*t11*chfov*sint,   f1*(u1*cost - u2*u3*sint) + f1*t11*chfov*(u3*cost + u1*u2*sint) - (f1*t12*chfov*(- sint*u2^2 + sint))/ar],
+                [u3^2*(cost - 1) - cost - t11*chfov*(u2*sint + u1*u3*(cost - 1)) + (t12*chfov*(u1*sint - u2*u3*(cost - 1)))/ar,                                                                                                             0,                                                                                                             0, 0, 0, 1,                               (f1*t12*chfov*sint)/ar - f1*t11*u3*chfov*(cost - 1),                             - f1*t11*chfov*sint - (f1*t12*u3*chfov*(cost - 1))/ar, 2*f1*u3*(cost - 1) - f1*t11*u1*chfov*(cost - 1) - (f1*t12*u2*chfov*(cost - 1))/ar,   f1*(- sint*u3^2 + sint) - f1*t11*chfov*(u2*cost - u1*u3*sint) + (f1*t12*chfov*(u1*cost + u2*u3*sint))/ar],
+                [                                                                                                            0, u1*u3*(cost - 1) - u2*sint + t21*chfov*((1 - cost)*u1^2 + cost) - (t22*chfov*(u3*sint + u1*u2*(cost - 1)))/ar,                                                                                                             0, 1, 0, 0, f2*u3*(cost - 1) - 2*f2*t21*u1*chfov*(cost - 1) - (f2*t22*u2*chfov*(cost - 1))/ar,                                       - f2*sint - (f2*t22*u1*chfov*(cost - 1))/ar,                                         f2*u1*(cost - 1) - (f2*t22*chfov*sint)/ar, - f2*(u2*cost + u1*u3*sint) - f2*t21*chfov*(- sint*u1^2 + sint) - (f2*t22*chfov*(u3*cost - u1*u2*sint))/ar],
+                [                                                                                                            0, u1*sint + u2*u3*(cost - 1) + t21*chfov*(u3*sint - u1*u2*(cost - 1)) + (t22*chfov*((1 - cost)*u2^2 + cost))/ar,                                                                                                             0, 0, 1, 0,                                              f2*sint - f2*t21*u2*chfov*(cost - 1), f2*u3*(cost - 1) - f2*t21*u1*chfov*(cost - 1) - (2*f2*t22*u2*chfov*(cost - 1))/ar,                                              f2*u2*(cost - 1) + f2*t21*chfov*sint,   f2*(u1*cost - u2*u3*sint) + f2*t21*chfov*(u3*cost + u1*u2*sint) - (f2*t22*chfov*(- sint*u2^2 + sint))/ar],
+                [                                                                                                            0, u3^2*(cost - 1) - cost - t21*chfov*(u2*sint + u1*u3*(cost - 1)) + (t22*chfov*(u1*sint - u2*u3*(cost - 1)))/ar,                                                                                                             0, 0, 0, 1,                               (f2*t22*chfov*sint)/ar - f2*t21*u3*chfov*(cost - 1),                             - f2*t21*chfov*sint - (f2*t22*u3*chfov*(cost - 1))/ar, 2*f2*u3*(cost - 1) - f2*t21*u1*chfov*(cost - 1) - (f2*t22*u2*chfov*(cost - 1))/ar,   f2*(- sint*u3^2 + sint) - f2*t21*chfov*(u2*cost - u1*u3*sint) + (f2*t22*chfov*(u1*cost + u2*u3*sint))/ar],
+                [                                                                                                            0,                                                                                                             0, u1*u3*(cost - 1) - u2*sint + t31*chfov*((1 - cost)*u1^2 + cost) - (t32*chfov*(u3*sint + u1*u2*(cost - 1)))/ar, 1, 0, 0, f3*u3*(cost - 1) - 2*f3*t31*u1*chfov*(cost - 1) - (f3*t32*u2*chfov*(cost - 1))/ar,                                       - f3*sint - (f3*t32*u1*chfov*(cost - 1))/ar,                                         f3*u1*(cost - 1) - (f3*t32*chfov*sint)/ar, - f3*(u2*cost + u1*u3*sint) - f3*t31*chfov*(- sint*u1^2 + sint) - (f3*t32*chfov*(u3*cost - u1*u2*sint))/ar],
+                [                                                                                                            0,                                                                                                             0, u1*sint + u2*u3*(cost - 1) + t31*chfov*(u3*sint - u1*u2*(cost - 1)) + (t32*chfov*((1 - cost)*u2^2 + cost))/ar, 0, 1, 0,                                              f3*sint - f3*t31*u2*chfov*(cost - 1), f3*u3*(cost - 1) - f3*t31*u1*chfov*(cost - 1) - (2*f3*t32*u2*chfov*(cost - 1))/ar,                                              f3*u2*(cost - 1) + f3*t31*chfov*sint,   f3*(u1*cost - u2*u3*sint) + f3*t31*chfov*(u3*cost + u1*u2*sint) - (f3*t32*chfov*(- sint*u2^2 + sint))/ar],
+                [                                                                                                            0,                                                                                                             0, u3^2*(cost - 1) - cost - t31*chfov*(u2*sint + u1*u3*(cost - 1)) + (t32*chfov*(u1*sint - u2*u3*(cost - 1)))/ar, 0, 0, 1,                               (f3*t32*chfov*sint)/ar - f3*t31*u3*chfov*(cost - 1),                             - f3*t31*chfov*sint - (f3*t32*u3*chfov*(cost - 1))/ar, 2*f3*u3*(cost - 1) - f3*t31*u1*chfov*(cost - 1) - (f3*t32*u2*chfov*(cost - 1))/ar,   f3*(- sint*u3^2 + sint) - f3*t31*chfov*(u2*cost - u1*u3*sint) + (f3*t32*chfov*(u1*cost + u2*u3*sint))/ar]
+            ])
+
+    return J
