@@ -63,7 +63,8 @@ if __name__ == "__main__":
     pr.start()
 
     # wait until pw ends
-    pw.join()
+    pr.join()
     # pw is infinite loop, so it needs to stop 
     pr.terminate()
+    pw.terminate()
 

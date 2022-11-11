@@ -65,7 +65,7 @@ class Window:
             p = trans_m @ f.T
             print(p.T)
             for vt in p.T:
-                glVertex2f(vt[0],1-vt[1])
+                glVertex2f(vt[0],vt[1])
 
             glEnd()
 
@@ -92,13 +92,13 @@ class Window:
 
     def mouse_button(self, window, button, action, mods):
         pos = glfw.get_cursor_pos(window)
-        print('mouse:', self.button, end='')
+        print('mouse:', button, end='')
 
-        if self.button == glfw.MOUSE_self.button_LEFT:
+        if button == glfw.MOUSE_BUTTON_LEFT:
             print('(Left)', end='')
-        if self.button == glfw.MOUSE_self.button_RIGHT:
+        if button == glfw.MOUSE_BUTTON_RIGHT:
             print('(Right)', end='')
-        if self.button == glfw.MOUSE_self.button_MIDDLE:
+        if button == glfw.MOUSE_BUTTON_MIDDLE:
             print('(Middle)', end='')
 
         if action == glfw.PRESS:
