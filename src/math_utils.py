@@ -13,6 +13,9 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
 
     # Projection is defined as taking an expanded point [x, y, 1], multiplying by M
     # to get [x', y', w] and then divide by w to get a projected point [x'/w, y'/w]
+    for c in [bl, br, tr, tl]:
+        if c.size != (2,):
+            raise ValueError("Passed Corners should be 2-dimensional points.")
 
     A = np.array([[0, 0, 1, 0, 0, 0, 0,      0],
                   [0, 0, 0, 0, 0, 1, 0,      0],
@@ -23,6 +26,32 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
                   [0, 1, 1, 0, 0, 0, 0,      -tl[0]],
                   [0, 0, 0, 0, 1, 1, 0,      -tl[1]]])
     b = np.array([bl[0], bl[1], br[0], br[1], tr[0], tr[1], tl[0], tl[1]])
+
+    mat_factors = np.linalg.solve(A, b)
+    mat_factors = np.append(mat_factors, [1])
+
+    matrix = mat_factors.reshape((3, 3))
+
+    return matrix
+
+def compute_inverse_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.NDArray) -> np.ndarray:
+    """ Computes the matrix to go from the rectangle given by the four corners provided to the unit square.
+        Should make checking which button was clicked easier."""
+    for c in [bl, br, tr, tl]:
+        if c.size != (2,):
+            raise ValueError("Passed Corners should be 2-dimensional points.")
+
+    A = np.array([
+        [bl[0], bl[1], 1,     0,     0, 0,      0,      0],
+        [    0,     0, 0, bl[0], bl[1], 1,      0,      0],
+        [br[0], br[1], 1,     0,     0, 0, -br[0], -br[1]],
+        [    0,     0, 0, br[0], br[1], 1,      0,      0],
+        [tr[0], tr[1], 1,     0,     0, 0, -tr[0], -tr[1]],
+        [    0,     0, 0, tr[0], tr[1], 1, -tr[0], -tr[1]],
+        [tl[0], tl[1], 1,     0,     0, 0,      0,      0],
+        [    0,     0, 0, tl[0], tl[1], 1, -tl[0], -tl[1]]
+        ])
+    b = np.array([0, 0, 1, 0, 1, 1, 0, 1])
 
     mat_factors = np.linalg.solve(A, b)
     mat_factors = np.append(mat_factors, [1])
