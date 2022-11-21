@@ -3,6 +3,7 @@ import numpy.typing as npt
 import enum
 import math
 import sys
+from typing import Optional
 
 def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.NDArray) -> np.ndarray:
     """Computes a projection matrix to project from the unit square (0-1) to the given corners"""
@@ -12,6 +13,9 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
 
     # Projection is defined as taking an expanded point [x, y, 1], multiplying by M
     # to get [x', y', w] and then divide by w to get a projected point [x'/w, y'/w]
+    for c in [bl, br, tr, tl]:
+        if c.size != (2,):
+            raise ValueError("Passed Corners should be 2-dimensional points.")
 
     A = np.array([[0, 0, 1, 0, 0, 0, 0,      0],
                   [0, 0, 0, 0, 0, 1, 0,      0],
@@ -22,6 +26,32 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
                   [0, 1, 1, 0, 0, 0, 0,      -tl[0]],
                   [0, 0, 0, 0, 1, 1, 0,      -tl[1]]])
     b = np.array([bl[0], bl[1], br[0], br[1], tr[0], tr[1], tl[0], tl[1]])
+
+    mat_factors = np.linalg.solve(A, b)
+    mat_factors = np.append(mat_factors, [1])
+
+    matrix = mat_factors.reshape((3, 3))
+
+    return matrix
+
+def compute_inverse_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.NDArray) -> np.ndarray:
+    """ Computes the matrix to go from the rectangle given by the four corners provided to the unit square.
+        Should make checking which button was clicked easier."""
+    for c in [bl, br, tr, tl]:
+        if c.size != (2,):
+            raise ValueError("Passed Corners should be 2-dimensional points.")
+
+    A = np.array([
+        [bl[0], bl[1], 1,     0,     0, 0,      0,      0],
+        [    0,     0, 0, bl[0], bl[1], 1,      0,      0],
+        [br[0], br[1], 1,     0,     0, 0, -br[0], -br[1]],
+        [    0,     0, 0, br[0], br[1], 1,      0,      0],
+        [tr[0], tr[1], 1,     0,     0, 0, -tr[0], -tr[1]],
+        [    0,     0, 0, tr[0], tr[1], 1, -tr[0], -tr[1]],
+        [tl[0], tl[1], 1,     0,     0, 0,      0,      0],
+        [    0,     0, 0, tl[0], tl[1], 1, -tl[0], -tl[1]]
+        ])
+    b = np.array([0, 0, 1, 0, 1, 1, 0, 1])
 
     mat_factors = np.linalg.solve(A, b)
     mat_factors = np.append(mat_factors, [1])
@@ -58,6 +88,14 @@ def normalize_vector(vec: npt.NDArray) -> np.ndarray:
     len_sq = np.dot(vec, vec)
     return vec / math.sqrt(len_sq)
 
+def vfov_to_hfov(vfov: float, aspect_ratio: float, in_format: AngleFormat, out_format: AngleFormat) -> float:
+    vfov_rad = convert_angles(vfov, in_format, AngleFormat.RAD)
+    half_height = math.sin(vfov_rad / 2)
+    half_width = aspect_ratio * half_height
+    hfov_rad = math.asin(half_width) * 2
+    return convert_angles(hfov_rad, AngleFormat.RAD, out_format)
+
+
 class Frustum:
     """Represents a frustum in space, with an origin, orientation, field of view and aspect ratio.
        Allows for easy conversion from points in world space (i.e. the coordinate system in which the 
@@ -65,7 +103,7 @@ class Frustum:
        (u,v, are bounded in [0,1] + depth, if the point is located within the frustum)"""
 
     def __init__(self, position: npt.NDArray, forward: npt.NDArray, up: npt.NDArray, aspect_ratio: float,
-                fov_format : AngleFormat =AngleFormat.DEG, *, hfov : float = None, vfov : float = None) -> None:
+                fov_format : AngleFormat = AngleFormat.DEG, *, hfov : Optional[float] = None, vfov : Optional[float] = None) -> None:
         """
         Parameters:
           - position: Position of the frustum tip (i.e. position of camera or projector)
@@ -94,10 +132,8 @@ class Frustum:
         if hfov is not None:
             self.__hfov = convert_angles(hfov, fov_format, AngleFormat.RAD)
         else:
-            vfov_rad = convert_angles(vfov, fov_format, AngleFormat.RAD)
-            half_height = math.sin(vfov_rad / 2)
-            half_width = aspect_ratio * half_height
-            self.__hfov = math.asin(half_width) * 2
+            assert vfov is not None
+            self.__hfov = vfov_to_hfov(vfov, aspect_ratio, fov_format, AngleFormat.RAD)
 
         self.__rot_mat = np.array([self.__right, self.__up, -self.__fwd]).transpose()
         self.__inv_rot_mat = np.linalg.inv(self.__rot_mat)
