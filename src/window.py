@@ -33,8 +33,6 @@ class Window:
         # glfw.set_cursor_pos_callback(self.window, self.cursor_pos)
         # glfw.set_cursor_enter_callback(self.window, self.cursor_enter)
         glfw.set_mouse_button_callback(self.window, self.mouse_button)
-        glfw.set_scroll_callback(self.window, self.scroll)
-        # glfw.set_window_refresh_callback(self.window, self.window_refresh)
         glfw.make_context_current(self.window)
 
         glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -111,12 +109,3 @@ class Window:
 
         x, y = pos
         print(pos, x, y)
-
-
-    def scroll(self, window, xoffset, yoffset):
-        print('scroll:', xoffset, yoffset)
-
-
-    def window_refresh(self, window):
-        self.display(window)
-
