@@ -14,7 +14,7 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
     # Projection is defined as taking an expanded point [x, y, 1], multiplying by M
     # to get [x', y', w] and then divide by w to get a projected point [x'/w, y'/w]
     for c in [bl, br, tr, tl]:
-        if c.size != (2,):
+        if c.size != 2:
             raise ValueError("Passed Corners should be 2-dimensional points.")
 
     A = np.array([[0, 0, 1, 0, 0, 0, 0,      0],

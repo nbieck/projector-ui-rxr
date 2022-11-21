@@ -65,7 +65,7 @@ class Window:
             p = trans_m @ f.T
             self.P = p.T
             for vt in p.T:
-                glVertex2f(vt[0],vt[1])
+                glVertex4f(vt[0],vt[1], vt[2], vt[3])
 
             glEnd()
 
