@@ -29,8 +29,6 @@ def write(q):
             print("tl: ", tl)
             print("tr: ", tr)
             
-            
-            
             trans_m = mu.threeD_to_fourD(mu.compute_matrix(bl,br,tr,tl))
             
             # print('Process to write: {}'.format(os.getpid()))
@@ -40,12 +38,13 @@ def write(q):
 
 # creating the window based on the matrix received from the write function
 
-buttons = np.array([[[0, 0, 0, 1],
-                     [0, 1, 0, 1],
-                     [1, 1, 0, 1],
-                     [1, 0, 0, 1]]])
 
 def read(q):
+    buttons = np.array([[[0, 0, 0, 1],
+                        [0, 1, 0, 1],
+                        [1, 1, 0, 1],
+                        [1, 0, 0, 1]]])
+
     trans_m = np.array([[1, 0, 0, 0],
                         [0, 1, 0, 0],
                         [0, 0, 1, 0],
@@ -59,6 +58,7 @@ def read(q):
             w.pressed = False
             print("coordinate")
             print(w.P)
+            
         w.run(trans_m=trans_m)
     w.clear()
 
