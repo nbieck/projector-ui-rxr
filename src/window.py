@@ -2,6 +2,7 @@ import glfw
 from OpenGL.GL import *
 from ctypes import Structure, sizeof
 import numpy as np
+import math
 
 width = 640
 height = 480
@@ -17,6 +18,11 @@ class Window:
         self.features = features
         self.pressed = False
         self.P = None
+        self.callibration_point=[
+                np.array([0.05, 0.05]),
+                np.array([0.5, 0.5]),
+                np.array([0.95,0.95])]
+
         if not glfw.init():
             raise RuntimeError('Could not initialize GLFW3')
 
@@ -37,42 +43,62 @@ class Window:
 
         glClearColor(0.0, 0.0, 0.0, 1.0)
         glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0)
-        self.display(self.trans_m)   # necessary only on Windows
-    
-
-    def run(self, trans_m):
-        # print("run",trans_m)
-        glfw.wait_events_timeout(1e-3)
-        self.display(trans_m)
-        glfw.poll_events()
+        # self.display(self.trans_m)   # necessary only on Windows
     
 
     def callibration(self): 
-        pass
+        glfw.wait_events_timeout(1e-3)
+        self._callibrationDisplay()
+        glfw.poll_events()
+
+    def _callibrationDisplay(self):
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        for i in range(3):
+            glBegin(GL_POLYGON)
+            glColor3f(i==0, i==1, i==2)
+            glVertex2f(self.callibration_point[i][0]-0.05,self.callibration_point[i][1]-0.05)
+            glVertex2f(self.callibration_point[i][0]-0.05,self.callibration_point[i][1]+0.05)
+            glVertex2f(self.callibration_point[i][0]+0.05,self.callibration_point[i][1]+0.05)
+            glVertex2f(self.callibration_point[i][0]+0.05,self.callibration_point[i][1]-0.05)
+            glEnd()
+
+        glfw.swap_buffers(self.window)
+    
 
     def clear(self):
         glfw.terminate()
 
   
-    def draw(self, tool, trans_m):
+    def run(self, trans_m, size=None, pos=None):
+        # print("run",trans_m)
+        glfw.wait_events_timeout(1e-3)
+        self.display(trans_m, size, pos)
+        glfw.poll_events()
+
+
+    def display(self,trans_m, size=None, pos=None):
+        glClear(GL_COLOR_BUFFER_BIT)
+        self.draw(self.features, trans_m, size, pos)
+        glfw.swap_buffers(self.window)
+
+
+    def draw(self, tool, trans_m, size=None, pos=None):
         glColor3f(1.0, 1.0, 1.0)
 
         for f in tool:
             glBegin(GL_POLYGON)
     
+            if size is not None and pos is not None:
+                f = f*size + pos
+
             p = trans_m @ f.T
             self.P = p.T
             for vt in p.T:
                 glVertex4f(vt[0],vt[1], vt[2], vt[3])
 
             glEnd()
-
-
-    def display(self,trans_m):
-        glClear(GL_COLOR_BUFFER_BIT)
-        self.draw(self.features, trans_m)
-        glfw.swap_buffers(self.window)
-
+    
 
     def cursor_pos(self, window, xpos, ypos):
         x = xpos/width

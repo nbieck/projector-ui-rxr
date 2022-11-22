@@ -24,13 +24,13 @@ def calibrate(world_points: List[npt.NDArray], texture_points: List[npt.NDArray]
     if len(texture_points) != 3:
         raise ValueError("Texture Points for calibration should be exacly 3.")
     for p in world_points:
-        if p.size != (3,):
+        if p.size != 3:
             raise ValueError("World Points should have 3 elements.")
     for p in texture_points:
-        if p.size != (2,):
+        if p.size != 2:
             raise ValueError("Texture Points should have 2 elements.")
-        if np.any(p < 0 or p > 1):
-            raise ValueError("All Texture Coordinates should be in the range [0,1].")
+        # if np.any(p < 0 or p > 1):
+        #     raise ValueError("All Texture Coordinates should be in the range [0,1].")
     if hfov is not None and vfov is not None:
         raise ValueError("Only one of horizontal and vertical fov should be provided.")
     if hfov is None and vfov is None:
@@ -126,7 +126,7 @@ def __define_F(xs: List[npt.NDArray], ts: List[npt.NDArray], ar, hfov) -> __Func
 
 __JacobianType = Callable[[float,float,float,npt.NDArray,npt.NDArray,float],npt.NDArray]
 
-def __define_J(xs: List[npt.NDArray], ts: List[npt.NDARRAY], ar, hfov) -> __JacobianType:
+def __define_J(xs: List[npt.NDArray], ts: List[npt.NDArray], ar, hfov) -> __JacobianType:
     def J(f1: float, f2: float, f3: float, p: npt.NDArray, u: npt.NDArray, theta: float) -> npt.NDArray:
 
         #helpers
