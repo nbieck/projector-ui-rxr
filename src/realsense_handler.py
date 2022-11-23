@@ -108,8 +108,10 @@ class RealsenseHandler():
         for n, (eq, plane) in enumerate(results):
             proj = self.project(plane)
             j, i = proj.astype(np.uint32).T
-            im = i[(i >= 0) & (i < self.h)]
-            jm = j[(j >= 0) & (j < self.w)]
+            m = (i >= 0) & (i < self.h) & (j >= 0) & (j < self.w)
+            im = i[m]
+            jm = j[m]
+
             for i_h, j_w in zip(im, jm):
                 cv2.circle(image, (j_w, i_h),
                            marker_size, self.color_map[n % 100], thickness=-1)
@@ -131,15 +133,11 @@ if __name__ == "__main__":
             t0 = time.time()
 
             results = RSH.detectPlanes(
-                points, texcoords, down_sampling_rate=0.005)
+                points, texcoords, down_sampling_rate=1/49)
 
-            # print('Time:', time.time() - t0)
-            # print(texcoords.shape, texcoords[:100])
-            print(results[0][0])
             # color_image = RSH.drawPlanes(color_image, results)
             # depth_image = RSH.drawPlanes(depth_image, results)
             # images = RSH.combineImages(color_image, depth_image)
-
             color_image = RSH.drawPlanes(color_image, results)
             depth_colormap = RSH.drawPlanes(depth_colormap, results)
             images = np.hstack((color_image, depth_colormap))
