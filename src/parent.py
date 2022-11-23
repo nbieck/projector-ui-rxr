@@ -8,7 +8,7 @@ import glfw
 # import file 
 import window
 import math_utils as mu
-# import calibration 
+import calibration 
 
 
 # sending transform matrix to window generator by queue
@@ -40,14 +40,13 @@ def write(q):
 # creating the window based on the matrix received from the write function
 
 
-def read(q):
+def read(q, frutsum):
 
     trans_m = np.array([[1, 0, 0, 0],
                         [0, 1, 0, 0],
                         [0, 0, 1, 0],
                         [0, 0, 0, 1]])
 
-    w = window.Window(buttons, trans_m)
     while not glfw.window_should_close(w.window):
         if not q.empty() and w.pressed:
             trans_m = q.get()
@@ -55,8 +54,8 @@ def read(q):
             print("coordinate")
             print(w.P)
             
-        w.run(trans_m=trans_m)
-        # w.callibration()
+        # w.run(trans_m=trans_m)
+        w.callibration()
     w.clear()
 
 if __name__ == "__main__":
@@ -74,16 +73,17 @@ if __name__ == "__main__":
     world_points = [np.array([100, 100, 1]),
                     np.array([250, 250, 1]),
                     np.array([500, 500, 1])]
+    w = window.Window(buttons, trans_m)
 
-    # hight = 480
-    # weight = 640
-    # frustum = calibration.calibrate(world_points=world_points, texture_points=w.callibration_point, aspect_ratio=weight/hight,hfov=0.4)
-
-    # q = Queue()
-    # pw = Process(target=write, args=(q,frustum,))
+    hight = 480
+    weight = 640
+    frustum = calibration.calibrate(world_points=world_points, texture_points=w.callibration_point, aspect_ratio=weight/hight,hfov=0.4)
 
     q = Queue()
-    pw = Process(target=write, args=(q,))
+    pw = Process(target=write, args=(q,frustum,))
+
+    # q = Queue()
+    # pw = Process(target=write, args=(q,))
     pr = Process(target=read, args=(q,))
 
     # activating process
