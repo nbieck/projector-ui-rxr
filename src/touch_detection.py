@@ -28,7 +28,8 @@ if __name__ == "__main__":
             hands = MPH.detectHands(color_image)
             cursor = MPH.getIndexFingerPositions(hands)
             image = MPH.drawLandmarks(color_image, hands)
-            print(MPH.isGestureNeutral(hands))
+            # print(MPH.isGestureNeutral(hands))
+
             cv2.putText(image,
                         str(fps),
                         org=(50, 50),
@@ -46,7 +47,7 @@ if __name__ == "__main__":
 
             if count >= 30:
                 results = RSH.detectPlanes(
-                    points, texcoords, down_sampling_rate=1/41)
+                    points, texcoords, down_sampling_rate=1/43)
                 count = 0
             count += 1
 
@@ -66,11 +67,11 @@ if __name__ == "__main__":
                 p = np.argmin(np.sum(np.abs(texcoords - cursor[0:2]), axis=1))
                 cursor_depth = calculateDistancePoint2Plane(
                     points[p], results[0][0]) * 100  # cm
-                # print(cursor, texcoords[p], points[p], cursor_depth)
+                print(cursor, "distance: ", cursor_depth)
 
                 c = (255, 0, 0)
 
-                if cursor_depth < 2 \
+                if cursor_depth < 1.5 \
                         and left_up[1] < cursor[1] < right_down[1] \
                         and left_up[0] < cursor[0] < right_down[0]:
                     c = (0, 0, 255)
