@@ -14,7 +14,7 @@ def compute_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl: npt.ND
     # Projection is defined as taking an expanded point [x, y, 1], multiplying by M
     # to get [x', y', w] and then divide by w to get a projected point [x'/w, y'/w]
     for c in [bl, br, tr, tl]:
-        if c.size != (2,):
+        if c.shape != (2,):
             raise ValueError("Passed Corners should be 2-dimensional points.")
 
     A = np.array([[0, 0, 1, 0, 0, 0, 0,      0],
@@ -38,7 +38,7 @@ def compute_inverse_matrix(bl: npt.NDArray, br: npt.NDArray, tr: npt.NDArray, tl
     """ Computes the matrix to go from the rectangle given by the four corners provided to the unit square.
         Should make checking which button was clicked easier."""
     for c in [bl, br, tr, tl]:
-        if c.size != (2,):
+        if c.shape != (2,):
             raise ValueError("Passed Corners should be 2-dimensional points.")
 
     A = np.array([
@@ -175,10 +175,9 @@ class Frustum:
         depth = vec[2]
 
         # bring uv into range [-1,1] for easier handling
-        uv = np.resize(vec, 2)
-        # uv = vec.resize(2)
+        uv = vec.resize(2)
         uv *= np.full_like(uv, 2)
-        uv -= np.full_like(uv, 1)
+        uv -= np.full_like(uv, -1)
 
         half_width = math.sin(self.__hfov / 2)
         half_height = half_width / self.__ar
@@ -193,16 +192,13 @@ class Frustum:
     def view_to_screen(self, vec: npt.NDArray) -> np.ndarray:
         """ Convert from view space to screen space """
         depth = vec[2]
-        xy = np.resize(vec, 2)
-        # xy = vec.resize(2)
+        xy = vec.resize(2)
         xy /= depth
 
         half_width = math.sin(self.__hfov / 2)
         half_height = half_width / self.__ar
 
         uv = xy / np.array([half_width, half_height])
-        uv += np.full_like(uv, 1)
-        uv /= np.full_like(uv, 2)
 
         return np.array([uv[0], uv[1], depth])
 
@@ -211,6 +207,6 @@ class Frustum:
         return self.view_to_screen(self.world_to_view(vec))
         
     def __verify_3d_or_die(self, vec: npt.NDArray) -> None:
-        if vec.shape != (3,):
+        if vec.size != (3,):
             raise ValueError("Vector should be a 1D array with 3 values.")
 
