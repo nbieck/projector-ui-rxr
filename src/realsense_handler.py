@@ -24,7 +24,8 @@ class RealsenseHandler():
         clipping_distance_in_meters = 1  # 1 meter
         self.clipping_distance = clipping_distance_in_meters / depth_scale
 
-        align_to = rs.stream.color
+        align_to = rs.stream.depth
+        # align_to = rs.stream.color
         self.align = rs.align(align_to)
 
         self.color_map = []
@@ -40,6 +41,8 @@ class RealsenseHandler():
 
         aligned_depth_frame = aligned_frames.get_depth_frame()
         color_frame = aligned_frames.get_color_frame()
+        # aligned_depth_frame = frames.get_depth_frame()
+        # color_frame = frames.get_color_frame()
         self.depth = aligned_depth_frame
 
         if not aligned_depth_frame or not color_frame:
@@ -67,6 +70,8 @@ class RealsenseHandler():
 
     def getPointCloud(self):
         points = self.pc.calculate(self.depth)
+        self.pc.map_to(self.depth)
+
         v, t = points.get_vertices(), points.get_texture_coordinates()
         verts = np.asanyarray(v).view(np.float32).reshape(-1, 3)  # xyz
         texcoords = np.asanyarray(t).view(np.float32).reshape(-1, 2)  # uv
@@ -80,7 +85,7 @@ class RealsenseHandler():
         # ignore divide by zero for invalid depth
         with np.errstate(divide='ignore', invalid='ignore'):
             proj = v[:, :-1] / v[:, -1, np.newaxis] * \
-                (w*view_aspect*1.25, h*1.25) + (w/1.9, h/1.9)
+                (w*view_aspect, h) + (w/2.0, h/2.0)
 
         # near clipping
         znear = 0.03
@@ -99,15 +104,16 @@ class RealsenseHandler():
 
         return results  # array of (equatino, points)
 
-    def drawPlanes(self, image, results):
+    def drawPlanes(self, image, results, marker_size=2):
         for n, (eq, plane) in enumerate(results):
             proj = self.project(plane)
             j, i = proj.astype(np.uint32).T
-            im = i[(i >= 0) & (i < RSH.h)]
-            jm = j[(j >= 0) & (j < RSH.w)]
+            im = i[(i >= 0) & (i < self.h)]
+            jm = j[(j >= 0) & (j < self.w)]
             for i_h, j_w in zip(im, jm):
                 cv2.circle(image, (j_w, i_h),
-                           5, self.color_map[n % 100], thickness=-1)
+                           marker_size, self.color_map[n % 100], thickness=-1)
+            break
         return image
 
     def __del__(self):
@@ -122,15 +128,21 @@ if __name__ == "__main__":
             points, texcoords = RSH.getPointCloud()
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
                 depth_image, alpha=0.1), cv2.COLORMAP_JET)
-
             t0 = time.time()
+
             results = RSH.detectPlanes(
                 points, texcoords, down_sampling_rate=0.005)
-            print('Time:', time.time() - t0)
+
+            # print('Time:', time.time() - t0)
+            # print(texcoords.shape, texcoords[:100])
+            print(results[0][0])
+            # color_image = RSH.drawPlanes(color_image, results)
+            # depth_image = RSH.drawPlanes(depth_image, results)
+            # images = RSH.combineImages(color_image, depth_image)
 
             color_image = RSH.drawPlanes(color_image, results)
-            images = RSH.combineImages(color_image, depth_image)
-            # images = np.hstack((color_image, depth_colormap))
+            depth_colormap = RSH.drawPlanes(depth_colormap, results)
+            images = np.hstack((color_image, depth_colormap))
             cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
             cv2.imshow('Align Example', images)
 
@@ -139,5 +151,7 @@ if __name__ == "__main__":
                 cv2.destroyAllWindows()
                 break
     finally:
+        print("closing")
+        time.sleep(1)
         cv2.destroyAllWindows()
         del RSH
