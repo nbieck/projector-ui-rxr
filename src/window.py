@@ -27,7 +27,9 @@ class Window:
             raise RuntimeError('Could not initialize GLFW3')
 
 
-        self.window = glfw.create_window(width, height, 'mouse on GLFW', None, None)
+        self.window = glfw.create_window(glfw.get_video_mode(glfw.get_primary_monitor()).size[0],glfw.get_video_mode(glfw.get_primary_monitor()).size[1], 'mouse on GLFW', None, None)
+        # print(glfw.get_video_mode(glfw.get_primary_monitor()).size[0])
+        print()
         if not self.window:
             glfw.terminate()
             raise RuntimeError('Could not create an window')
@@ -47,6 +49,7 @@ class Window:
     
 
     def callibration(self): 
+        
         glfw.wait_events_timeout(1e-3)
         self._callibrationDisplay()
         glfw.poll_events()

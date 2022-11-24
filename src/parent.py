@@ -9,28 +9,42 @@ import glfw
 import window
 import math_utils as mu
 import calibration 
+import numpy.typing as npt
 
 
 # sending transform matrix to window generator by queue
-def write(q):
+def write(q, rs_frustum : mu.Frustum, pr_frustum : mu.Frustum):
 
     while True:
 
         if q.empty():
-            bl = np.array([random.uniform(0.1,0.4), random.uniform(0.1,0.4)])
-            br = np.array([random.uniform(0.4,0.9), random.uniform(0.1,0.4)])
-            tl = np.array([random.uniform(0.1,0.4), random.uniform(0.4,0.9)])
-            tr = np.array([random.uniform(0.4,0.9), random.uniform(0.4,0.9)])
+            # 640*480
+            # randomly generating window coordinate of camera view
+            bl = np.array([random.uniform( 0.1, 0.4), random.uniform( 0.1, 0.4), -100])
+            br = np.array([random.uniform(0.6, 0.9), random.uniform( 0.1, 0.4), -100])
+            tl = np.array([random.uniform( 0.1, 0.4), random.uniform(0.6, 0.9), -100])
+            tr = np.array([random.uniform(0.6, 0.9), random.uniform(0.6, 0.9), -100])
+
+            button = np.array([bl,br,tr,tl])
+            print(button)
+            projector_view = []
+            # frustum conversion from screen(camera) -> world world->screen(projector) 
+            for pos in button:
+                world_coord = rs_frustum.screen_to_world(pos)
+                projector_view.append(pr_frustum.world_to_screen(world_coord))
+
+
             # bl = np.array([0.2, 0.2])
             # br = np.array([0.8, 0.2])
             # tl = np.array([0.2, 0.8])
             # tr = np.array([0.8, 0.8])
-            print("bl: ", bl)
-            print("br: ", br)
-            print("tl: ", tl)
-            print("tr: ", tr)
+            print("bl: ", projector_view[0])
+            print("br: ", projector_view[1])
+            print("tl: ", projector_view[2])
+            print("tr: ", projector_view[3])
             
-            trans_m = mu.threeD_to_fourD(mu.compute_matrix(bl,br,tr,tl))
+            # convert to projection matrix
+            trans_m = mu.threeD_to_fourD(mu.compute_matrix(projector_view[0][0:2],projector_view[1][0:2],projector_view[2][0:2],projector_view[3][0:2]))
             
             # print('Process to write: {}'.format(os.getpid()))
             q.put(trans_m)
@@ -40,12 +54,17 @@ def write(q):
 # creating the window based on the matrix received from the write function
 
 
-def read(q, frutsum):
+buttons = np.array([[[0, 0, 0, 1],
+                    [0, 1, 0, 1],
+                    [1, 1, 0, 1],
+                    [1, 0, 0, 1]]])
+def read(q):
 
     trans_m = np.array([[1, 0, 0, 0],
                         [0, 1, 0, 0],
                         [0, 0, 1, 0],
                         [0, 0, 0, 1]])
+    w = window.Window(buttons, trans_m)
 
     while not glfw.window_should_close(w.window):
         if not q.empty() and w.pressed:
@@ -54,36 +73,37 @@ def read(q, frutsum):
             print("coordinate")
             print(w.P)
             
-        # w.run(trans_m=trans_m)
-        w.callibration()
+        w.run(trans_m=trans_m)
+        # w.callibration()
     w.clear()
 
 if __name__ == "__main__":
     # Parent process is creating the queue for child process
-    buttons = np.array([[[0, 0, 0, 1],
-                        [0, 1, 0, 1],
-                        [1, 1, 0, 1],
-                        [1, 0, 0, 1]]])
 
-    trans_m = np.array([[1, 0, 0, 0],
-                        [0, 1, 0, 0],
-                        [0, 0, 1, 0],
-                        [0, 0, 0, 1]])
-
+    # random points for callibration
     world_points = [np.array([100, 100, 1]),
                     np.array([250, 250, 1]),
                     np.array([500, 500, 1])]
-    w = window.Window(buttons, trans_m)
 
-    hight = 480
-    weight = 640
-    frustum = calibration.calibrate(world_points=world_points, texture_points=w.callibration_point, aspect_ratio=weight/hight,hfov=0.4)
+    # realsense parameter
+    realsense_aspect_ratio = 16/9
+    realsense_hfov = 69.4
+    realsense_vfov = 42.5
 
-    q = Queue()
-    pw = Process(target=write, args=(q,frustum,))
+    # projector parameter
+    projector_aspect_ratio = 16/9
+    projector_hfov = 38.95
 
+    # frustum for realsense and projector
+    realsense_frustum = mu.Frustum(np.array([0,0,0]),np.array([0,0,-1]),np.array([0,1,0]),realsense_aspect_ratio,mu.AngleFormat.DEG, hfov=realsense_hfov)
+    projector_frustum = mu.Frustum(np.array([0,0,0]),np.array([0,0,-1]),np.array([0,1,0]),projector_aspect_ratio,mu.AngleFormat.DEG, hfov=projector_hfov)
+    
     # q = Queue()
     # pw = Process(target=write, args=(q,))
+
+    # Creating a process for write function and read function.
+    q = Queue()
+    pw = Process(target=write, args=(q,realsense_frustum, projector_frustum,))
     pr = Process(target=read, args=(q,))
 
     # activating process
