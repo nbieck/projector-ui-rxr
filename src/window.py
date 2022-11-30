@@ -3,6 +3,7 @@ from OpenGL.GL import *
 from ctypes import Structure, sizeof
 import numpy as np
 import math
+from PIL import Image
 
 width = 640
 height = 480
@@ -26,8 +27,9 @@ class Window:
         if not glfw.init():
             raise RuntimeError('Could not initialize GLFW3')
 
-
-        self.window = glfw.create_window(glfw.get_video_mode(glfw.get_primary_monitor()).size[0],glfw.get_video_mode(glfw.get_primary_monitor()).size[1], 'mouse on GLFW', None, None)
+        self.window_w = glfw.get_video_mode(glfw.get_primary_monitor()).size[0]
+        self.window_h = glfw.get_video_mode(glfw.get_primary_monitor()).size[1]
+        self.window = glfw.create_window(self.window_w,self.window_h, 'mouse on GLFW', None, None)
         # print(glfw.get_video_mode(glfw.get_primary_monitor()).size[0])
         print()
         if not self.window:
@@ -45,8 +47,9 @@ class Window:
 
         glClearColor(0.0, 0.0, 0.0, 1.0)
         glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0)
-        # self.display(self.trans_m)   # necessary only on Windows
-    
+        self.initializeWindow()
+        # self.set_up_texture_maps()
+        self.display(self.trans_m)   # necessary only on Windows\
 
     def callibration(self): 
         
@@ -76,8 +79,44 @@ class Window:
     def run(self, trans_m, size=None, pos=None):
         # print("run",trans_m)
         glfw.wait_events_timeout(1e-3)
+        self.initializeWindow()
         self.display(trans_m, size, pos)
         glfw.poll_events()
+
+
+    def initializeWindow(self):
+        image = Image.open('other/Data/images.jpeg').convert('RGBA')
+        image_data = np.array(list(image.getdata()))
+        width , height = image.size
+        # print(image.size)
+
+        # set the viewport and projection
+        glViewport(0,0,self.window_w,self.window_h)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+
+        #gluPerspective(60.0, float(w)/h, .1, 1000.) #conway
+        glOrtho(0,1,0,1,0,1) #tex
+
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        #glClear( GL_COLOR_BUFFER_BIT ) #tex
+
+        # enable textures, bind to our texture
+        glEnable(GL_TEXTURE_2D)	#tex
+        textureId = (GLuint * 1)()
+        glGenTextures(1, textureId)
+        glBindTexture(GL_TEXTURE_2D, textureId[0])
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        #None means reserve texture memory, but texels are undefined
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, image_data)
+        glBindTexture(GL_TEXTURE_2D, 0)
 
 
     def display(self,trans_m, size=None, pos=None):
@@ -95,13 +134,69 @@ class Window:
             if size is not None and pos is not None:
                 f = f*size + pos
 
+            texcoord = [[0,0],[1,0],[1,1],[0,1]]
+            
             p = trans_m @ f.T
             self.P = p.T
-            for vt in p.T:
+            for idx, vt in enumerate(p.T):
                 glVertex4f(vt[0],vt[1], vt[2], vt[3])
+                glTexCoord2f(texcoord[idx][0],texcoord[idx][1])
 
             glEnd()
     
+    def set_up_texture_maps(self):
+        image = Image.open('other/Data/images.jpeg').convert('RGBA')
+        image_data = np.array(list(image.getdata()))
+        width , height = image.size
+        print(image.size)
+
+        # set the viewport and projection
+        glViewport(0,0,self.window_w,self.window_h)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+
+        #gluPerspective(60.0, float(w)/h, .1, 1000.) #conway
+        glOrtho(0,1,0,1,0,1) #tex
+
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        #glClear( GL_COLOR_BUFFER_BIT ) #tex
+
+        # enable textures, bind to our texture
+        glEnable(GL_TEXTURE_2D)	#tex
+        textureId = (GLuint * 1)()
+        glGenTextures(1, textureId)
+        glBindTexture(GL_TEXTURE_2D, textureId[0])
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        #None means reserve texture memory, but texels are undefined
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, image_data)
+        glBindTexture(GL_TEXTURE_2D, 0)
+        self.draw_tex_maps()
+
+        return textureId[0] 
+
+        
+    def draw_tex_maps(self):
+
+        glfw.wait_events_timeout(1e-3)
+
+        # glClear(GL_COLOR_BUFFER_BIT)
+
+        glBegin( GL_POLYGON )
+        glTexCoord2f( 0, 0 );    glVertex3f( 0, 1, 0 )
+        glTexCoord2f( 1, 0 );    glVertex3f( 1, 1, 0 )
+        glTexCoord2f( 1, 1 );    glVertex3f( 1, 0, 0 )
+        glTexCoord2f( 0, 1 );    glVertex3f( 0, 0, 0 )
+        glEnd(  )
+
+        glfw.swap_buffers(self.window)
+        glfw.poll_events()
 
     def cursor_pos(self, window, xpos, ypos):
         x = xpos/width

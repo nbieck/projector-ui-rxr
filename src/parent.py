@@ -16,7 +16,6 @@ import numpy.typing as npt
 def write(q, rs_frustum : mu.Frustum, pr_frustum : mu.Frustum):
 
     while True:
-
         if q.empty():
             # 640*480
             # randomly generating window coordinate of camera view
@@ -33,7 +32,7 @@ def write(q, rs_frustum : mu.Frustum, pr_frustum : mu.Frustum):
                 world_coord = rs_frustum.screen_to_world(pos)
                 projector_view.append(pr_frustum.world_to_screen(world_coord))
 
-
+            
             # bl = np.array([0.2, 0.2])
             # br = np.array([0.8, 0.2])
             # tl = np.array([0.2, 0.8])
@@ -48,6 +47,7 @@ def write(q, rs_frustum : mu.Frustum, pr_frustum : mu.Frustum):
             
             # print('Process to write: {}'.format(os.getpid()))
             q.put(trans_m)
+            
             time.sleep(0.5)
 
 
@@ -74,9 +74,12 @@ def read(q):
             print(w.P)
             
         w.run(trans_m=trans_m)
+        # w.set_up_texture_maps()
         # w.callibration()
     w.clear()
 
+
+# main function
 if __name__ == "__main__":
     # Parent process is creating the queue for child process
 
