@@ -12,8 +12,11 @@ class RealsenseHandler():
         self.pc = rs.pointcloud()
 
         config = rs.config()
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        # config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+        # config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+        config.enable_stream(rs.stream.depth, 640, 360, rs.format.z16, 30)
+        config.enable_stream(rs.stream.color, 640, 360, rs.format.bgr8, 30)
+        # config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
         profile = self.pipeline.start(config)
 
@@ -24,8 +27,8 @@ class RealsenseHandler():
         clipping_distance_in_meters = 1  # 1 meter
         self.clipping_distance = clipping_distance_in_meters / depth_scale
 
-        align_to = rs.stream.depth
-        # align_to = rs.stream.color
+        # align_to = rs.stream.depth
+        align_to = rs.stream.color
         self.align = rs.align(align_to)
 
         self.color_map = []
@@ -50,8 +53,8 @@ class RealsenseHandler():
 
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
-        self.w = color_image.shape[1]
-        self.h = color_image.shape[0]
+        self.w = depth_image.shape[1]
+        self.h = depth_image.shape[0]
 
         return color_image, depth_image
 
@@ -62,10 +65,10 @@ class RealsenseHandler():
             depth_image_3d <= 0), grey_color, color_image)
         return bg_removed
 
-    def combineImages(self, color_image, depth_image):
-        depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
-            depth_image, alpha=0.1), cv2.COLORMAP_JET)
-        images = np.hstack((color_image, depth_colormap))
+    def combineImages(self, image1, image2):
+        if image1.shape != image2.shape:
+            image2 = cv2.resize(image1, image2.shape[:2])
+        images = np.hstack((image1, image2))
         return images
 
     def getPointCloud(self):
@@ -104,7 +107,7 @@ class RealsenseHandler():
 
         return results  # array of (equatino, points)
 
-    def drawPlanes(self, image, results, marker_size=2):
+    def drawPlanes(self, image, results, marker_size=1):
         for n, (eq, plane) in enumerate(results):
             proj = self.project(plane)
             j, i = proj.astype(np.uint32).T

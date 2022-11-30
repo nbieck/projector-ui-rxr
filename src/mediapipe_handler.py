@@ -9,9 +9,12 @@ class MediapipeHandler():
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
-            model_complexity=0,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5)
+            model_complexity=1,
+            min_detection_confidence=0.2,
+            min_tracking_confidence=0.2)
+        self._x = 0
+        self._y = 0
+        self._z = 0
 
     def detectHands(self, image):
         idxs = np.where(np.sum(image, axis=2) != 0)
@@ -38,15 +41,16 @@ class MediapipeHandler():
                     self.mp_drawing_styles.get_default_hand_connections_style())
         return image
 
-    def getIndexFingerPositions(self, results):
+    def getIndexFingerPositions(self, results, LPF=0):
         if results.multi_hand_landmarks:
             hand = results.multi_hand_landmarks[0]
-            x = hand.landmark[8].x
-            y = hand.landmark[8].y
-            z = hand.landmark[8].z
-            x = int(np.clip(x * self.image_width, 0, self.image_width-1))
-            y = int(np.clip(y * self.image_height, 0, self.image_height-1))
-            return x+self.pixel_min[1], y+self.pixel_min[0], z
+            self._x = hand.landmark[7].x * (1-LPF) + self._x * LPF
+            self._y = hand.landmark[7].y * (1-LPF) + self._y * LPF
+            self._z = hand.landmark[7].z * (1-LPF) + self._z * LPF
+            x_w = int(np.clip(self._x * self.image_width, 0, self.image_width-1))
+            y_h = int(np.clip(self._y * self.image_height,
+                      0, self.image_height-1))
+            return x_w+self.pixel_min[1], y_h+self.pixel_min[0], self._z
         return None
 
     def isGestureNeutral(self, results):
