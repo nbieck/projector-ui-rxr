@@ -27,8 +27,10 @@ class Window:
         if not glfw.init():
             raise RuntimeError('Could not initialize GLFW3')
 
-        self.window_w = glfw.get_video_mode(glfw.get_primary_monitor()).size[0]
-        self.window_h = glfw.get_video_mode(glfw.get_primary_monitor()).size[1]
+        # self.window_w = glfw.get_video_mode(glfw.get_primary_monitor()).size[0]
+        # self.window_h = glfw.get_video_mode(glfw.get_primary_monitor()).size[1]
+        self.window_w = 640
+        self.window_h = 360
         self.window = glfw.create_window(self.window_w,self.window_h, 'mouse on GLFW', None, None)
         # print(glfw.get_video_mode(glfw.get_primary_monitor()).size[0])
         print()
@@ -76,11 +78,11 @@ class Window:
         glfw.terminate()
 
   
-    def run(self, trans_m, size=None, pos=None):
+    def run(self, trans_m):
         # print("run",trans_m)
         glfw.wait_events_timeout(1e-3)
         self.initializeWindow()
-        self.display(trans_m, size, pos)
+        self.display(trans_m)
         glfw.poll_events()
 
 
@@ -102,7 +104,7 @@ class Window:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        #glClear( GL_COLOR_BUFFER_BIT ) #tex
+        glClear( GL_COLOR_BUFFER_BIT ) #tex
 
         # enable textures, bind to our texture
         glEnable(GL_TEXTURE_2D)	#tex
@@ -119,30 +121,29 @@ class Window:
         glBindTexture(GL_TEXTURE_2D, 0)
 
 
-    def display(self,trans_m, size=None, pos=None):
+    def display(self,trans_m):
         glClear(GL_COLOR_BUFFER_BIT)
-        self.draw(self.features, trans_m, size, pos)
+        self.draw(self.features, trans_m)
         glfw.swap_buffers(self.window)
 
 
-    def draw(self, tool, trans_m, size=None, pos=None):
+    def draw(self, tool, trans_m):
         glColor3f(1.0, 1.0, 1.0)
 
-        for f in tool:
-            glBegin(GL_POLYGON)
-    
-            if size is not None and pos is not None:
-                f = f*size + pos
+        glBegin(GL_POLYGON)
 
-            texcoord = [[0,0],[1,0],[1,1],[0,1]]
-            
-            p = trans_m @ f.T
-            self.P = p.T
-            for idx, vt in enumerate(p.T):
-                glVertex4f(vt[0],vt[1], vt[2], vt[3])
-                glTexCoord2f(texcoord[idx][0],texcoord[idx][1])
+        
+        texcoord = [[0,0],[1,0],[1,1],[0,1]]
+        
+        p = trans_m @ tool.T
+        self.P = p.T
+        print('projection coord')
+        print(p.T)
+        for idx, vt in enumerate(p.T):
+            glVertex4f(vt[0],vt[1], vt[2], vt[3])
+            glTexCoord2f(texcoord[idx][0],texcoord[idx][1])
 
-            glEnd()
+        glEnd()
     
     def set_up_texture_maps(self):
         image = Image.open('other/Data/images.jpeg').convert('RGBA')

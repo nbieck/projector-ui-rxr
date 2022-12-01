@@ -44,7 +44,7 @@ def write(q, rs_frustum : mu.Frustum, pr_frustum : mu.Frustum):
             
             # convert to projection matrix
             trans_m = mu.threeD_to_fourD(mu.compute_matrix(projector_view[0][0:2],projector_view[1][0:2],projector_view[2][0:2],projector_view[3][0:2]))
-            
+            print(trans_m)
             # print('Process to write: {}'.format(os.getpid()))
             q.put(trans_m)
             
@@ -54,10 +54,10 @@ def write(q, rs_frustum : mu.Frustum, pr_frustum : mu.Frustum):
 # creating the window based on the matrix received from the write function
 
 
-buttons = np.array([[[0, 0, 0, 1],
+buttons = np.array([[0, 0, 0, 1],
                     [0, 1, 0, 1],
                     [1, 1, 0, 1],
-                    [1, 0, 0, 1]]])
+                    [1, 0, 0, 1]])
 def read(q):
 
     trans_m = np.array([[1, 0, 0, 0],
@@ -70,8 +70,9 @@ def read(q):
         if not q.empty() and w.pressed:
             trans_m = q.get()
             w.pressed = False
+
             print("coordinate")
-            print(w.P)
+            print(trans_m)
             
         w.run(trans_m=trans_m)
         # w.set_up_texture_maps()
