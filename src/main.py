@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
             
 
-            sample_points = np.array([[0.5, 0.5, 0], [0.6, 0.5, 0], [0.5, 0.6, 0]])
+            sample_points = np.array([[0.5, 0.5, 0], [0.4, 0.5, 0], [0.5, 0.6, 0]])
             sample_points_world = []
             for i,uv in enumerate(sample_points):
                 depth = depth_image[359-int(uv[1]*360), int(uv[0]*640)]
@@ -125,25 +125,23 @@ if __name__ == "__main__":
 
             # print('depth')
             norm_point = []
-            
-            for i, window_uv in enumerate(window_point):
-                # x = window_uv[0] - 1280/2
-                # y = window_uv[1] - 720/2
-                # depth = -(plane_equation[0]*window_uv[0] + plane_equation[1]*window_uv[1] + plane_equation[3])/ plane_equation[2] 
-                
-                depth =  depth_image[359-int(window_uv[1]*360), int(window_uv[0]*640)]
-                norm_point.append(realsense_frustum.screen_to_world(np.array([window_uv[0], window_uv[1], depth])))
-            norm_point *= normal
-            
-            # for i in range(4):
-            #     window_point[i][0] = float(window_point[i][0])
-            #     window_point[i][1] = float(window_point[i][1])
 
-            print('world coordinate')
-            print(norm_point)
+            WIDTH = 200
+            HEIGHT = 100
+
+            right = np.array([1,0,0]) - np.dot(normal, np.array([1,0,0])) * normal
+            right /= np.linalg.norm(right)
+            up = np.array([0,1,0]) - np.dot(normal, np.array([0,1,0])) * normal
+            up /= np.linalg.norm(up)
+
+            corners = [sample_points_world[0] - up * HEIGHT/2 - right * WIDTH/2,
+                       sample_points_world[0] - up * HEIGHT/2 + right * WIDTH/2,
+                       sample_points_world[0] + up * HEIGHT/2 + right * WIDTH/2,
+                       sample_points_world[0] + up * HEIGHT/2 - right * WIDTH/2]
+            
             
             projector_view = []
-            for pos in norm_point:
+            for pos in corners:
                 # world_coord = realsense_frustum.screen_to_world(pos)
                 projector_view.append(projector_frustum.world_to_screen(pos))
             

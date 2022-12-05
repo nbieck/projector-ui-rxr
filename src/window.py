@@ -31,7 +31,7 @@ class Window:
         # self.window_h = glfw.get_video_mode(glfw.get_primary_monitor()).size[1]
         self.window_w = 640
         self.window_h = 360
-        self.window = glfw.create_window(self.window_w,self.window_h, 'mouse on GLFW', None, None)
+        self.window = glfw.create_window(self.window_w,self.window_h, 'mouse on GLFW', glfw.get_primary_monitor(), None)
         # print(glfw.get_video_mode(glfw.get_primary_monitor()).size[0])
         print()
         if not self.window:
