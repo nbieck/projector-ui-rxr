@@ -27,9 +27,10 @@ if __name__ == "__main__":
             t0 = time.time()
 
             color_image, depth_image = RSH.getFrames()
-            print(color_image.shape, depth_image.shape)
+
             mp_results = MPH.detectHands(color_image)
             cursor = MPH.getIndexFingerPositions(mp_results, LPF=0.2)
+            
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
                 depth_image, alpha=0.1), cv2.COLORMAP_JET)
             image = MPH.drawLandmarks(color_image, mp_results)
@@ -46,9 +47,6 @@ if __name__ == "__main__":
                         )
 
             points, texcoords = RSH.getPointCloud()
-
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
-                depth_image, alpha=0.1), cv2.COLORMAP_JET)
 
             if count >= 10:
                 results = RSH.detectPlanes(
