@@ -116,12 +116,16 @@ if __name__ == "__main__":
                 depth = depth_image[359-int(uv[1]*360), int(uv[0]*640)]
                 sample_points_world.append(realsense_frustum.screen_to_world(np.array([uv[0], uv[1], depth])))
 
-            vec1 = sample_points_world[1] - sample_points_world[0]
-            vec2 = sample_points_world[2] - sample_points_world[0]
-            vec1 /= np.linalg.norm(vec1)
-            vec2 /= np.linalg.norm(vec2)
-            normal = np.cross(vec2, vec1)
-            print('normal', normal)
+            # nikals version
+            # vec1 = sample_points_world[1] - sample_points_world[0]
+            # vec2 = sample_points_world[2] - sample_points_world[0]
+            # vec1 /= np.linalg.norm(vec1)
+            # vec2 /= np.linalg.norm(vec2)
+            # normal = np.cross(vec2, vec1)
+            # print('normal', normal)
+
+            # takehiro version
+            normal = np.array([plane_equation[0], -plane_equation[1], -plane_equation[2]])
 
             # print('depth')
             norm_point = []
