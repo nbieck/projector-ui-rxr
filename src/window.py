@@ -136,8 +136,8 @@ class Window:
         glBegin(GL_POLYGON)
 
         
-        texcoord = [[0,0],[1,0],[1,1],[0,1]]
-        
+        # texcoord = [[0,0],[1,0],[1,1],[0,1]]
+        texcoord = [ [1,1], [1,0], [0,0], [0,1]]
         p = trans_m @ tool.T
         self.P = p.T
         print('projection coord')

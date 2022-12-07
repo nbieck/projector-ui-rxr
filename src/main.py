@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 count = 0
             count += 1
             # plane_equation [a, b, c, d] (ax + by + cz + d = 0)
-            plane_equation, points = results[0]
+            plane_equation, a = results[0]
 
             if cursor is not None:
                 texcoords = np.asarray(
@@ -146,8 +146,8 @@ if __name__ == "__main__":
             # print('depth')
             norm_point = []
 
-            WIDTH = 200 #[mm]
-            HEIGHT = 100 #[mm]
+            WIDTH = 2000 #[mm]
+            HEIGHT = 1000 #[mm]
 
             right = np.array([1, 0, 0]) - np.dot(normal,
                                                  np.array([1, 0, 0])) * normal
@@ -168,16 +168,19 @@ if __name__ == "__main__":
                 projector_view.append(projector_frustum.world_to_screen(pos))
 
             # convert to projection matrix
-            trans_m = mu.threeD_to_fourD(mu.compute_matrix(
-                projector_view[0][0:2], projector_view[1][0:2], projector_view[2][0:2], projector_view[3][0:2]))
-
+            try:
+                trans_m = mu.threeD_to_fourD(mu.compute_matrix(
+                    projector_view[0][0:2], projector_view[1][0:2], projector_view[2][0:2], projector_view[3][0:2]))
+                if q.empty():
+                    q.put(trans_m)
+            except:
+                pass
             print('projector view')
             print(projector_view)
-            print('trans mat')
-            print(trans_m)
+            # print('trans mat')
+            # print(trans_m)
 
-            if q.empty():
-                q.put(trans_m)
+
 
             color_image = RSH.drawPlanes(color_image, results)
             combined_image = RSH.combineImages(color_image, depth_colormap)
