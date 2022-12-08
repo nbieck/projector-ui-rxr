@@ -23,21 +23,25 @@ class Window:
                 np.array([0.05, 0.05]),
                 np.array([0.5, 0.5]),
                 np.array([0.95,0.95])]
-        self.image = Image.open('other/Data/images.jpeg').convert('RGBA')
+        self.image = Image.open('other/Data/IMLEX.png').convert('RGBA')
+        self.image_data = np.array(list(self.image.getdata()))
+        self.image_data = self.image_data[:,[2,1,0,3]]        
+        print('shape', self.image_data.shape)
+        self.count = True
 
         if not glfw.init():
             raise RuntimeError('Could not initialize GLFW3')
 
         # self.window_w = glfw.get_video_mode(glfw.get_primary_monitor()).size[0]
         # self.window_h = glfw.get_video_mode(glfw.get_primary_monitor()).size[1]
-        self.window_w = 640
-        self.window_h = 360
+        self.window_w = 1280
+        self.window_h = 640
 
         monitor = glfw.get_monitors()
         monitor_visual = glfw.get_video_mode(monitor[1])
         self.window = glfw.create_window(monitor_visual[0][0], monitor_visual[0][1], 'mouse on GLFW', monitor[1], None)
         # print(glfw.get_video_mode(glfw.get_primary_monitor()).size[0])
-        print(monitor)
+        # print(monitor)
         if not self.window:
             glfw.terminate()
             raise RuntimeError('Could not create an window')
@@ -78,7 +82,17 @@ class Window:
         glfw.swap_buffers(self.window)
     
     def changePic(self):
-        self.image = 'other/Data/result1.jpg'
+        if self.count:
+            self.image = Image.open('other/Data/UEF.jpg').convert('RGBA')
+            self.count = False
+        elif not self.count:
+            self.image = Image.open('other/Data/IMLEX.png').convert('RGBA')
+            self.count = True
+        
+        self.image_data = np.array(list(self.image.getdata()))
+        self.image_data = self.image_data[:,[2,1,0,3]]     
+
+
 
     def clear(self):
         glfw.terminate()
@@ -93,7 +107,6 @@ class Window:
 
 
     def initializeWindow(self):
-        image_data = np.array(list(self.image.getdata()))
         width , height = self.image.size
         # print(image.size)
 
@@ -122,7 +135,7 @@ class Window:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         #None means reserve texture memory, but texels are undefined
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, image_data)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, self.image_data)
         glBindTexture(GL_TEXTURE_2D, 0)
 
 
@@ -142,8 +155,8 @@ class Window:
         texcoord = [ [1,1], [1,0], [0,0], [0,1]]
         p = trans_m @ tool.T
         self.P = p.T
-        print('projection coord')
-        print(p.T)
+        # print('projection coord')
+        # print(p.T)
         for idx, vt in enumerate(p.T):
             glVertex4f(vt[0],vt[1], vt[2], vt[3])
             glTexCoord2f(texcoord[idx][0],texcoord[idx][1])

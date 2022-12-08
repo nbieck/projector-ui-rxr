@@ -5,15 +5,15 @@ import cv2
 import numpy as np
 import time
 import parent
-from multiprocessing import Process, Queue,
+from multiprocessing import Process, Queue
 import window
 import math_utils as mu
 import calibration
 import numpy.typing as npt
 import glfw
-# from clicker import * 
+from clicker import * 
 
-def read(q):
+def read(q, a):
 
     buttons = np.array([[0.4, 0.4, 0, 1],
                         [0.6, 0.4, 0, 1],
@@ -25,10 +25,11 @@ def read(q):
                         [0, 0, 1, 0],
                         [0, 0, 0, 1]])
     w = window.Window(buttons, trans_m)
-    # clicked = clickFunc(w.changePic)
+    clicked = clickFunc(w.changePic)
 
     while not glfw.window_should_close(w.window):
-        # clicked.clicked()
+        if not a.empty():
+            clicked.clicking(a.get())
         if not q.empty():
             trans_m = q.get()
             w.pressed = False
@@ -70,13 +71,13 @@ if __name__ == "__main__":
 
     # Creating a process for write function and read function.
     q = Queue()
-    # click = Queue()
-    pr = Process(target=read, args=(q,))
+    click = Queue()
+    pr = Process(target=read, args=(q,click,))
 
     # activating process
     # pw.start()
     pr.start()
-
+    current_click_state = 0
     try:
         while True:
             fps = int(1/(time.time() - t0))
@@ -94,7 +95,7 @@ if __name__ == "__main__":
             t0 = time.time()
 
             mp_results = MPH.detectHands(color_image)
-            cursor = MPH.getIndexFingerPositions(mp_results, LPF=0.2)
+            cursor = MPH.getIndexFingerPositions(mp_results, LPF=0.3)
             color_image = MPH.drawLandmarks(color_image, mp_results)
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
                 depth_image, alpha=0.1), cv2.COLORMAP_JET)
@@ -115,18 +116,25 @@ if __name__ == "__main__":
                 cursor_depth = calculateDistancePoint2Plane(
                     points[p], results[0][0]) * 100  # cm
 
-                print(cursor, "distance: ", cursor_depth)
-                c = (255, 0, 0)
-                if cursor_depth < 2:
-                    c = (0, 0, 255)
-                    ##########################3
-                    
+                # print(cursor, "distance: ", cursor_depth)
+                if cursor_depth < 2 and current_click_state == 0:
+                    current_click_state = 1
+                elif current_click_state == 1 and cursor_depth > 4:
+                    current_click_state = 0
 
+                click.put(current_click_state)
+                c = (0, 255*current_click_state, 255)
+                    
                 cv2.drawMarker(color_image, (int(cursor[0]), int(cursor[1])), c, markerType=cv2.MARKER_CROSS,
                                markerSize=20, thickness=5, line_type=cv2.LINE_8)
 
-            window_point = np.array([[0.4, 0.4, 1], [0.6, 0.4, 1], [0.6, 0.6, 1], [0.4, 0.6, 1]],
+            print("count: ", click)
+
+            window_point = np.array([[0.5, 0.5, 1], [0.6, 0.4, 1], [0.6, 0.6, 1], [0.4, 0.6, 1]],
                                     dtype=np.float32)
+
+            d = depth_image[359-int(window_point[0][1]*360), int(window_point[0][0]*640)]
+            tmp = realsense_frustum.screen_to_world(np.array([window_point[0][0], window_point[0][1], d]))
 
             sample_points = np.array(
                 [[0.5, 0.5, 0], [0.4, 0.5, 0], [0.5, 0.6, 0]])
@@ -136,19 +144,18 @@ if __name__ == "__main__":
                 sample_points_world.append(
                     realsense_frustum.screen_to_world(np.array([uv[0], uv[1], depth])))
 
-
             # nikals version
-            vec1 = sample_points_world[1] - sample_points_world[0]
-            vec2 = sample_points_world[2] - sample_points_world[0]
-            vec1 /= np.linalg.norm(vec1)
-            vec2 /= np.linalg.norm(vec2)
-            normal1 = np.cross(vec2, vec1)
+            # vec1 = sample_points_world[1] - sample_points_world[0]
+            # vec2 = sample_points_world[2] - sample_points_world[0]
+            # vec1 /= np.linalg.norm(vec1)
+            # vec2 /= np.linalg.norm(vec2)
+            # normal1 = np.cross(vec2, vec1)
             # print('n_normal', normal1)
 
             # takehiro version
             normal = np.array(
-                 [plane_equation[0], -plane_equation[1], -plane_equation[2]])
-            print('t_normal', normal)
+                 [-plane_equation[0], plane_equation[1], -plane_equation[2]])
+            # print('t_normal', normal)
             # print('depth')
             norm_point = []
 
@@ -162,12 +169,10 @@ if __name__ == "__main__":
                                               np.array([0, 1, 0])) * normal
             up /= np.linalg.norm(up)
 
-            corners = [sample_points_world[0] - up * HEIGHT/2 - right * WIDTH/2,
-                       sample_points_world[0] - up *
-                       HEIGHT/2 + right * WIDTH/2,
-                       sample_points_world[0] + up *
-                       HEIGHT/2 + right * WIDTH/2,
-                       sample_points_world[0] + up * HEIGHT/2 - right * WIDTH/2]
+            corners = np.array([tmp - up * HEIGHT/2 - right * WIDTH/2,
+                       tmp - up * HEIGHT/2 + right * WIDTH/2,
+                       tmp + up * HEIGHT/2 + right * WIDTH/2,
+                       tmp + up * HEIGHT/2 - right * WIDTH/2])
 
             projector_view = []
             for pos in corners:
@@ -181,8 +186,8 @@ if __name__ == "__main__":
                     q.put(trans_m)
             except:
                 pass
-            print('projector view')
-            print(projector_view)
+            # print('projector view')
+            # print(projector_view)
             # print('trans mat')
             # print(trans_m)
 
