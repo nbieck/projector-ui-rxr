@@ -5,13 +5,13 @@ import cv2
 import numpy as np
 import time
 import parent
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue,
 import window
 import math_utils as mu
 import calibration
 import numpy.typing as npt
 import glfw
-
+# from clicker import * 
 
 def read(q):
 
@@ -25,8 +25,10 @@ def read(q):
                         [0, 0, 1, 0],
                         [0, 0, 0, 1]])
     w = window.Window(buttons, trans_m)
+    # clicked = clickFunc(w.changePic)
 
     while not glfw.window_should_close(w.window):
+        # clicked.clicked()
         if not q.empty():
             trans_m = q.get()
             w.pressed = False
@@ -68,6 +70,7 @@ if __name__ == "__main__":
 
     # Creating a process for write function and read function.
     q = Queue()
+    # click = Queue()
     pr = Process(target=read, args=(q,))
 
     # activating process
@@ -116,6 +119,8 @@ if __name__ == "__main__":
                 c = (255, 0, 0)
                 if cursor_depth < 2:
                     c = (0, 0, 255)
+                    ##########################3
+                    
 
                 cv2.drawMarker(color_image, (int(cursor[0]), int(cursor[1])), c, markerType=cv2.MARKER_CROSS,
                                markerSize=20, thickness=5, line_type=cv2.LINE_8)
@@ -131,18 +136,19 @@ if __name__ == "__main__":
                 sample_points_world.append(
                     realsense_frustum.screen_to_world(np.array([uv[0], uv[1], depth])))
 
+
             # nikals version
-            # vec1 = sample_points_world[1] - sample_points_world[0]
-            # vec2 = sample_points_world[2] - sample_points_world[0]
-            # vec1 /= np.linalg.norm(vec1)
-            # vec2 /= np.linalg.norm(vec2)
-            # normal = np.cross(vec2, vec1)
-            # print('normal', normal)
+            vec1 = sample_points_world[1] - sample_points_world[0]
+            vec2 = sample_points_world[2] - sample_points_world[0]
+            vec1 /= np.linalg.norm(vec1)
+            vec2 /= np.linalg.norm(vec2)
+            normal1 = np.cross(vec2, vec1)
+            # print('n_normal', normal1)
 
             # takehiro version
             normal = np.array(
-                [plane_equation[0], -plane_equation[1], -plane_equation[2]])
-
+                 [plane_equation[0], -plane_equation[1], -plane_equation[2]])
+            print('t_normal', normal)
             # print('depth')
             norm_point = []
 
@@ -179,7 +185,6 @@ if __name__ == "__main__":
             print(projector_view)
             # print('trans mat')
             # print(trans_m)
-
 
 
             color_image = RSH.drawPlanes(color_image, results)

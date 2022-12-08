@@ -23,6 +23,7 @@ class Window:
                 np.array([0.05, 0.05]),
                 np.array([0.5, 0.5]),
                 np.array([0.95,0.95])]
+        self.image = Image.open('other/Data/images.jpeg').convert('RGBA')
 
         if not glfw.init():
             raise RuntimeError('Could not initialize GLFW3')
@@ -36,7 +37,7 @@ class Window:
         monitor_visual = glfw.get_video_mode(monitor[1])
         self.window = glfw.create_window(monitor_visual[0][0], monitor_visual[0][1], 'mouse on GLFW', monitor[1], None)
         # print(glfw.get_video_mode(glfw.get_primary_monitor()).size[0])
-        print()
+        print(monitor)
         if not self.window:
             glfw.terminate()
             raise RuntimeError('Could not create an window')
@@ -76,6 +77,8 @@ class Window:
 
         glfw.swap_buffers(self.window)
     
+    def changePic(self):
+        self.image = 'other/Data/result1.jpg'
 
     def clear(self):
         glfw.terminate()
@@ -90,9 +93,8 @@ class Window:
 
 
     def initializeWindow(self):
-        image = Image.open('other/Data/images.jpeg').convert('RGBA')
-        image_data = np.array(list(image.getdata()))
-        width , height = image.size
+        image_data = np.array(list(self.image.getdata()))
+        width , height = self.image.size
         # print(image.size)
 
         # set the viewport and projection
