@@ -122,13 +122,19 @@ if __name__ == "__main__":
                 elif current_click_state == 1 and cursor_depth > 4:
                     current_click_state = 0
 
-                click.put(current_click_state)
                 c = (0, 255*current_click_state, 255)
-                    
                 cv2.drawMarker(color_image, (int(cursor[0]), int(cursor[1])), c, markerType=cv2.MARKER_CROSS,
                                markerSize=20, thickness=5, line_type=cv2.LINE_8)
 
+                click.put(current_click_state)
+            else:
+                current_click_state = 0
+            
+                click.put(current_click_state)
+                
+
             print("count: ", click)
+  
 
             window_point = np.array([[0.5, 0.5, 1], [0.6, 0.4, 1], [0.6, 0.6, 1], [0.4, 0.6, 1]],
                                     dtype=np.float32)
